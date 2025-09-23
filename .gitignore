@@ -1,7 +1,0 @@
-**/bin/*
-**/.lsnLaunch.user
-*~$*
-*.tmp
-**/appsettings.json
-**/appsettings.Development.json
-**/.vs/*

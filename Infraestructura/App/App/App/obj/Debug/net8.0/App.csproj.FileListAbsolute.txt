@@ -1,7 +1,0 @@
-C:\UC\Arquitectura\EntregaProyecto\ProyectoInventario\Infraestructura\App\App\App\obj\Debug\net8.0\App.csproj.AssemblyReference.cache
-C:\UC\Arquitectura\EntregaProyecto\ProyectoInventario\Infraestructura\App\App\App\obj\Debug\net8.0\rpswa.dswa.cache.json
-C:\UC\Arquitectura\EntregaProyecto\ProyectoInventario\Infraestructura\App\App\App\obj\Debug\net8.0\App.GeneratedMSBuildEditorConfig.editorconfig
-C:\UC\Arquitectura\EntregaProyecto\ProyectoInventario\Infraestructura\App\App\App\obj\Debug\net8.0\App.AssemblyInfoInputs.cache
-C:\UC\Arquitectura\EntregaProyecto\ProyectoInventario\Infraestructura\App\App\App\obj\Debug\net8.0\App.AssemblyInfo.cs
-C:\UC\Arquitectura\EntregaProyecto\ProyectoInventario\Infraestructura\App\App\App\obj\Debug\net8.0\App.csproj.CoreCompileInputs.cache
-C:\UC\Arquitectura\EntregaProyecto\ProyectoInventario\Infraestructura\App\App\App\obj\Debug\net8.0\App.MvcApplicationPartsAssemblyInfo.cache
