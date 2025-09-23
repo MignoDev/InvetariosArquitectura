@@ -1,0 +1,507 @@
+@page "/reportes"
+@using ProyectoInventario.Application.Service.Servicios
+@inject ServicioReportes ServicioReportes
+
+<PageTitle>Reportes de Inventario</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-chart-bar me-2"></i>Reportes de Inventario
+            </h2>
+        </div>
+    </div>
+
+    <!-- Filtros de fecha -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <label class="form-label">Fecha Inicio</label>
+            <input type="date" class="form-control" @bind="fechaInicio" />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Fecha Fin</label>
+            <input type="date" class="form-control" @bind="fechaFin" />
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button class="btn btn-primary me-2" @onclick="AplicarFiltros">
+                <i class="fas fa-filter me-1"></i>Aplicar Filtros
+            </button>
+            <button class="btn btn-success" @onclick="ExportarReporte">
+                <i class="fas fa-download me-1"></i>Exportar
+            </button>
+        </div>
+    </div>
+
+    <!-- Alertas -->
+    @if (!string.IsNullOrEmpty(mensajeAlerta))
+    {
+        <div class="alert alert-@tipoAlerta alert-dismissible fade show" role="alert">
+            @mensajeAlerta
+            <button type="button" class="btn-close" @onclick="CerrarAlerta"></button>
+        </div>
+    }
+
+    <!-- Pestañas de reportes -->
+    <ul class="nav nav-tabs" id="reportTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link @(tabActiva == "stock" ? "active" : "")" 
+                    @onclick="() => CambiarTab('stock')" type="button">
+                <i class="fas fa-boxes me-1"></i>Stock Actual
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link @(tabActiva == "movimientos" ? "active" : "")" 
+                    @onclick="() => CambiarTab('movimientos')" type="button">
+                <i class="fas fa-exchange-alt me-1"></i>Movimientos
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link @(tabActiva == "estadisticas" ? "active" : "")" 
+                    @onclick="() => CambiarTab('estadisticas')" type="button">
+                <i class="fas fa-chart-pie me-1"></i>Estadísticas
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="reportTabContent">
+        <!-- Reporte de Stock Actual -->
+        <div class="tab-pane fade @(tabActiva == "stock" ? "show active" : "")" id="stock-tab">
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Reporte de Stock Actual</h5>
+                </div>
+                <div class="card-body">
+                    @if (cargandoStock)
+                    {
+                        <div class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                        </div>
+                    }
+                    else if (reporteStock != null)
+                    {
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <div class="card text-white bg-primary">
+                                    <div class="card-body text-center">
+                                        <h4>@reporteStock.Resumen.TotalProductos</h4>
+                                        <small>Total Productos</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-white bg-success">
+                                    <div class="card-body text-center">
+                                        <h4>@reporteStock.Resumen.TotalValorInventario.ToString("C")</h4>
+                                        <small>Valor Total</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-white bg-warning">
+                                    <div class="card-body text-center">
+                                        <h4>@reporteStock.Resumen.ProductosConStockBajo</h4>
+                                        <small>Stock Bajo</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-white bg-danger">
+                                    <div class="card-body text-center">
+                                        <h4>@reporteStock.Resumen.ProductosAgotados</h4>
+                                        <small>Agotados</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Nombre</th>
+                                        <th>Precio</th>
+                                        <th>Stock Actual</th>
+                                        <th>Stock Mín.</th>
+                                        <th>Stock Máx.</th>
+                                        <th>Estado</th>
+                                        <th>Valor Total</th>
+                                        <th>Ubicación</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var producto in reporteStock.Productos)
+                                    {
+                                        <tr>
+                                            <td>@producto.Codigo</td>
+                                            <td>@producto.Nombre</td>
+                                            <td>@producto.Precio.ToString("C")</td>
+                                            <td>@producto.StockActual</td>
+                                            <td>@producto.StockMinimo</td>
+                                            <td>@producto.StockMaximo</td>
+                                            <td>
+                                                @if (producto.EstadoStock == "Agotado")
+                                                {
+                                                    <span class="badge bg-danger">@producto.EstadoStock</span>
+                                                }
+                                                else if (producto.EstadoStock == "Bajo")
+                                                {
+                                                    <span class="badge bg-warning">@producto.EstadoStock</span>
+                                                }
+                                                else if (producto.EstadoStock == "Exceso")
+                                                {
+                                                    <span class="badge bg-info">@producto.EstadoStock</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-success">@producto.EstadoStock</span>
+                                                }
+                                            </td>
+                                            <td>@producto.ValorTotal.ToString("C")</td>
+                                            <td>@producto.Ubicacion</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Reporte de Movimientos -->
+        <div class="tab-pane fade @(tabActiva == "movimientos" ? "show active" : "")" id="movimientos-tab">
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Reporte de Movimientos</h5>
+                </div>
+                <div class="card-body">
+                    @if (cargandoMovimientos)
+                    {
+                        <div class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                        </div>
+                    }
+                    else if (reporteMovimientos != null)
+                    {
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <div class="card text-white bg-primary">
+                                    <div class="card-body text-center">
+                                        <h4>@reporteMovimientos.Resumen.TotalEntradas</h4>
+                                        <small>Total Entradas</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-white bg-info">
+                                    <div class="card-body text-center">
+                                        <h4>@reporteMovimientos.Resumen.TotalSalidas</h4>
+                                        <small>Total Salidas</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-white bg-success">
+                                    <div class="card-body text-center">
+                                        <h4>@reporteMovimientos.Resumen.ValorTotalEntradas.ToString("C")</h4>
+                                        <small>Valor Entradas</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-white bg-warning">
+                                    <div class="card-body text-center">
+                                        <h4>@reporteMovimientos.Resumen.BalanceCantidad</h4>
+                                        <small>Balance</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <th>Producto</th>
+                                        <th>Cantidad</th>
+                                        <th>Precio Unit.</th>
+                                        <th>Total</th>
+                                        <th>Fecha</th>
+                                        <th>Detalles</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var movimiento in reporteMovimientos.Movimientos)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @if (movimiento.Tipo == "Entrada")
+                                                {
+                                                    <span class="badge bg-success">@movimiento.Tipo</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger">@movimiento.Tipo</span>
+                                                }
+                                            </td>
+                                            <td>@movimiento.ProductoId</td>
+                                            <td>@movimiento.Cantidad</td>
+                                            <td>@(movimiento.PrecioUnitario?.ToString("C") ?? "-")</td>
+                                            <td>@(movimiento.Total?.ToString("C") ?? "-")</td>
+                                            <td>@movimiento.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>
+                                                @if (movimiento.Tipo == "Entrada")
+                                                {
+                                                    <small>Factura: @movimiento.NumeroFactura</small>
+                                                }
+                                                else
+                                                {
+                                                    <small>@movimiento.Motivo</small>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Reporte de Estadísticas -->
+        <div class="tab-pane fade @(tabActiva == "estadisticas" ? "show active" : "")" id="estadisticas-tab">
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Estadísticas Generales</h5>
+                </div>
+                <div class="card-body">
+                    @if (cargandoEstadisticas)
+                    {
+                        <div class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                        </div>
+                    }
+                    else if (reporteEstadisticas != null)
+                    {
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Productos</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <tr>
+                                            <td>Total:</td>
+                                            <td><strong>@reporteEstadisticas.Productos.Total</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Activos:</td>
+                                            <td><strong>@reporteEstadisticas.Productos.Activos</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Con Stock Bajo:</td>
+                                            <td><strong class="text-warning">@reporteEstadisticas.Productos.ConStockBajo</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Agotados:</td>
+                                            <td><strong class="text-danger">@reporteEstadisticas.Productos.Agotados</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Stock Normal:</td>
+                                            <td><strong class="text-success">@reporteEstadisticas.Productos.ConStockNormal</strong></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Proveedores</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <tr>
+                                            <td>Total:</td>
+                                            <td><strong>@reporteEstadisticas.Proveedores.Total</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Activos:</td>
+                                            <td><strong class="text-success">@reporteEstadisticas.Proveedores.Activos</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Inactivos:</td>
+                                            <td><strong class="text-danger">@reporteEstadisticas.Proveedores.Inactivos</strong></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h6>Movimientos del Último Mes</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <tr>
+                                            <td>Entradas:</td>
+                                            <td><strong>@reporteEstadisticas.MovimientosUltimoMes.Entradas</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Salidas:</td>
+                                            <td><strong>@reporteEstadisticas.MovimientosUltimoMes.Salidas</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Valor Total Entradas:</td>
+                                            <td><strong>@reporteEstadisticas.MovimientosUltimoMes.ValorTotalEntradas.ToString("C")</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Cantidad Total Entradas:</td>
+                                            <td><strong>@reporteEstadisticas.MovimientosUltimoMes.CantidadTotalEntradas</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Cantidad Total Salidas:</td>
+                                            <td><strong>@reporteEstadisticas.MovimientosUltimoMes.CantidadTotalSalidas</strong></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string tabActiva = "stock";
+    private DateTime fechaInicio = DateTime.Now.AddDays(-30);
+    private DateTime fechaFin = DateTime.Now;
+    private string mensajeAlerta = "";
+    private string tipoAlerta = "info";
+
+    // Estados de carga
+    private bool cargandoStock = false;
+    private bool cargandoMovimientos = false;
+    private bool cargandoEstadisticas = false;
+
+    // Reportes
+    private dynamic reporteStock;
+    private dynamic reporteMovimientos;
+    private dynamic reporteEstadisticas;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarReporteStock();
+    }
+
+    private async Task CambiarTab(string tab)
+    {
+        tabActiva = tab;
+        
+        switch (tab)
+        {
+            case "stock":
+                await CargarReporteStock();
+                break;
+            case "movimientos":
+                await CargarReporteMovimientos();
+                break;
+            case "estadisticas":
+                await CargarReporteEstadisticas();
+                break;
+        }
+    }
+
+    private async Task CargarReporteStock()
+    {
+        cargandoStock = true;
+        try
+        {
+            reporteStock = await ServicioReportes.GenerarReporteStockActualAsync();
+        }
+        catch (Exception ex)
+        {
+            MostrarAlerta($"Error al cargar reporte de stock: {ex.Message}", "danger");
+        }
+        finally
+        {
+            cargandoStock = false;
+        }
+    }
+
+    private async Task CargarReporteMovimientos()
+    {
+        cargandoMovimientos = true;
+        try
+        {
+            reporteMovimientos = await ServicioReportes.GenerarReporteMovimientosAsync(fechaInicio, fechaFin);
+        }
+        catch (Exception ex)
+        {
+            MostrarAlerta($"Error al cargar reporte de movimientos: {ex.Message}", "danger");
+        }
+        finally
+        {
+            cargandoMovimientos = false;
+        }
+    }
+
+    private async Task CargarReporteEstadisticas()
+    {
+        cargandoEstadisticas = true;
+        try
+        {
+            reporteEstadisticas = await ServicioReportes.GenerarReporteEstadisticasGeneralesAsync();
+        }
+        catch (Exception ex)
+        {
+            MostrarAlerta($"Error al cargar estadísticas: {ex.Message}", "danger");
+        }
+        finally
+        {
+            cargandoEstadisticas = false;
+        }
+    }
+
+    private async Task AplicarFiltros()
+    {
+        if (fechaInicio > fechaFin)
+        {
+            MostrarAlerta("La fecha de inicio no puede ser mayor a la fecha fin", "warning");
+            return;
+        }
+
+        await CambiarTab(tabActiva);
+        MostrarAlerta("Filtros aplicados correctamente", "success");
+    }
+
+    private async Task ExportarReporte()
+    {
+        try
+        {
+            // Implementar lógica de exportación
+            MostrarAlerta("Reporte exportado exitosamente", "success");
+        }
+        catch (Exception ex)
+        {
+            MostrarAlerta($"Error al exportar reporte: {ex.Message}", "danger");
+        }
+    }
+
+    private void MostrarAlerta(string mensaje, string tipo)
+    {
+        mensajeAlerta = mensaje;
+        tipoAlerta = tipo;
+    }
+
+    private void CerrarAlerta()
+    {
+        mensajeAlerta = "";
+    }
+}

@@ -1,0 +1,8 @@
+**/bin/*
+ProyectoInventario.slnLaunch.user
+*~$*
+*.tmp
+**/appsettings.json
+**/appsettings.Development.json
+**/.vs/*
+**/obj/*
