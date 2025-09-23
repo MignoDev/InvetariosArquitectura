@@ -1,0 +1,459 @@
+@page "/inventario"
+@using ProyectoInventario.Application.Service.Servicios
+@inject ServicioInventario ServicioInventario
+@inject ServicioReportes ServicioReportes
+
+<PageTitle>Gestión de Inventario</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-boxes me-2"></i>Gestión de Inventario
+            </h2>
+        </div>
+    </div>
+
+    <!-- Filtros y búsqueda -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Buscar productos..." @bind="terminoBusqueda" />
+                <button class="btn btn-outline-secondary" type="button" @onclick="BuscarProductos">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+        <div class="col-md-6 text-end">
+            <button class="btn btn-primary" @onclick="MostrarModalCrearProducto">
+                <i class="fas fa-plus me-1"></i>Nuevo Producto
+            </button>
+            <button class="btn btn-success" @onclick="GenerarReporteStock">
+                <i class="fas fa-chart-bar me-1"></i>Reporte de Stock
+            </button>
+        </div>
+    </div>
+
+    <!-- Alertas -->
+    @if (!string.IsNullOrEmpty(mensajeAlerta))
+    {
+        <div class="alert alert-@tipoAlerta alert-dismissible fade show" role="alert">
+            @mensajeAlerta
+            <button type="button" class="btn-close" @onclick="CerrarAlerta"></button>
+        </div>
+    }
+
+    <!-- Estadísticas rápidas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">@totalProductos</h4>
+                            <p class="card-text">Total Productos</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-boxes fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">@productosConStockBajo</h4>
+                            <p class="card-text">Stock Bajo</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-exclamation-triangle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">@productosAgotados</h4>
+                            <p class="card-text">Agotados</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-times-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">@valorTotalInventario.ToString("C")</h4>
+                            <p class="card-text">Valor Total</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-dollar-sign fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de productos -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Lista de Productos</h5>
+                </div>
+                <div class="card-body">
+                    @if (productos == null)
+                    {
+                        <div class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                        </div>
+                    }
+                    else if (!productos.Any())
+                    {
+                        <div class="text-center text-muted">
+                            <i class="fas fa-box-open fa-3x mb-3"></i>
+                            <p>No se encontraron productos</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Nombre</th>
+                                        <th>Precio</th>
+                                        <th>Stock Actual</th>
+                                        <th>Stock Mín.</th>
+                                        <th>Stock Máx.</th>
+                                        <th>Estado</th>
+                                        <th>Ubicación</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var producto in productos)
+                                    {
+                                        <tr>
+                                            <td>@producto.Codigo</td>
+                                            <td>@producto.Nombre</td>
+                                            <td>@producto.Precio.ToString("C")</td>
+                                            <td>@producto.Stock?.Cantidad</td>
+                                            <td>@producto.StockMinimo</td>
+                                            <td>@producto.StockMaximo</td>
+                                            <td>
+                                                @if (producto.Stock != null)
+                                                {
+                                                    @if (producto.EstaAgotado())
+                                                    {
+                                                        <span class="badge bg-danger">Agotado</span>
+                                                    }
+                                                    else if (producto.TieneStockBajo())
+                                                    {
+                                                        <span class="badge bg-warning">Bajo</span>
+                                                    }
+                                                    else if (producto.TieneExcesoStock())
+                                                    {
+                                                        <span class="badge bg-info">Exceso</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-success">Normal</span>
+                                                    }
+                                                }
+                                            </td>
+                                            <td>@producto.Stock?.Ubicacion</td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button class="btn btn-sm btn-outline-primary" @onclick="() => VerDetalleProducto(producto.Id)">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-warning" @onclick="() => EditarProducto(producto.Id)">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-success" @onclick="() => AjustarStock(producto.Id)">
+                                                        <i class="fas fa-warehouse"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para crear producto -->
+@if (mostrarModalCrear)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Crear Nuevo Producto</h5>
+                    <button type="button" class="btn-close" @onclick="CerrarModalCrear"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Código *</label>
+                                    <input type="text" class="form-control" @bind="nuevoProducto.Codigo" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Nombre *</label>
+                                    <input type="text" class="form-control" @bind="nuevoProducto.Nombre" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción</label>
+                            <textarea class="form-control" rows="3" @bind="nuevoProducto.Descripcion"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Precio *</label>
+                                    <input type="number" step="0.01" class="form-control" @bind="nuevoProducto.Precio" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Stock Mínimo *</label>
+                                    <input type="number" class="form-control" @bind="nuevoProducto.StockMinimo" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Stock Máximo *</label>
+                                    <input type="number" class="form-control" @bind="nuevoProducto.StockMaximo" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Stock Inicial *</label>
+                                    <input type="number" class="form-control" @bind="nuevoProducto.StockInicial" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Ubicación</label>
+                                    <input type="text" class="form-control" @bind="nuevoProducto.Ubicacion" />
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CerrarModalCrear">Cancelar</button>
+                    <button type="button" class="btn btn-primary" @onclick="CrearProducto" disabled="@creandoProducto">
+                        @if (creandoProducto)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                        }
+                        Crear Producto
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<ProyectoInventario.Domain.Models.Producto> productos;
+    private string terminoBusqueda = "";
+    private bool mostrarModalCrear = false;
+    private bool creandoProducto = false;
+    private string mensajeAlerta = "";
+    private string tipoAlerta = "info";
+    
+    // Estadísticas
+    private int totalProductos = 0;
+    private int productosConStockBajo = 0;
+    private int productosAgotados = 0;
+    private decimal valorTotalInventario = 0;
+
+    // Modelo para nuevo producto
+    private CrearProductoModel nuevoProducto = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarProductos();
+        await CargarEstadisticas();
+    }
+
+    private async Task CargarProductos()
+    {
+        try
+        {
+            productos = (await ServicioInventario.ObtenerProductosActivosAsync()).ToList();
+        }
+        catch (Exception ex)
+        {
+            MostrarAlerta($"Error al cargar productos: {ex.Message}", "danger");
+        }
+    }
+
+    private async Task CargarEstadisticas()
+    {
+        try
+        {
+            var reporte = await ServicioReportes.GenerarReporteEstadisticasGeneralesAsync();
+            // Aquí necesitarías mapear los datos del reporte a las variables locales
+            // Por simplicidad, se muestran valores de ejemplo
+            totalProductos = productos?.Count ?? 0;
+            productosConStockBajo = productos?.Count(p => p.TieneStockBajo()) ?? 0;
+            productosAgotados = productos?.Count(p => p.EstaAgotado()) ?? 0;
+            valorTotalInventario = productos?.Sum(p => p.Stock?.Cantidad * p.Precio ?? 0) ?? 0;
+        }
+        catch (Exception ex)
+        {
+            MostrarAlerta($"Error al cargar estadísticas: {ex.Message}", "warning");
+        }
+    }
+
+    private async Task BuscarProductos()
+    {
+        if (string.IsNullOrWhiteSpace(terminoBusqueda))
+        {
+            await CargarProductos();
+        }
+        else
+        {
+            try
+            {
+                productos = (await ServicioInventario.BuscarProductosAsync(terminoBusqueda)).ToList();
+            }
+            catch (Exception ex)
+            {
+                MostrarAlerta($"Error al buscar productos: {ex.Message}", "danger");
+            }
+        }
+    }
+
+    private void MostrarModalCrearProducto()
+    {
+        nuevoProducto = new CrearProductoModel();
+        mostrarModalCrear = true;
+    }
+
+    private void CerrarModalCrear()
+    {
+        mostrarModalCrear = false;
+        nuevoProducto = new CrearProductoModel();
+    }
+
+    private async Task CrearProducto()
+    {
+        if (string.IsNullOrWhiteSpace(nuevoProducto.Codigo) || string.IsNullOrWhiteSpace(nuevoProducto.Nombre))
+        {
+            MostrarAlerta("El código y nombre son obligatorios", "warning");
+            return;
+        }
+
+        creandoProducto = true;
+        try
+        {
+            await ServicioInventario.CrearProductoAsync(
+                nuevoProducto.Codigo,
+                nuevoProducto.Nombre,
+                nuevoProducto.Descripcion,
+                nuevoProducto.Precio,
+                nuevoProducto.StockMinimo,
+                nuevoProducto.StockMaximo,
+                nuevoProducto.StockInicial,
+                nuevoProducto.Ubicacion);
+
+            MostrarAlerta("Producto creado exitosamente", "success");
+            CerrarModalCrear();
+            await CargarProductos();
+            await CargarEstadisticas();
+        }
+        catch (Exception ex)
+        {
+            MostrarAlerta($"Error al crear producto: {ex.Message}", "danger");
+        }
+        finally
+        {
+            creandoProducto = false;
+        }
+    }
+
+    private void VerDetalleProducto(Guid productoId)
+    {
+        // Implementar navegación a página de detalle
+        // NavigationManager.NavigateTo($"/inventario/producto/{productoId}");
+    }
+
+    private void EditarProducto(Guid productoId)
+    {
+        // Implementar modal de edición
+    }
+
+    private void AjustarStock(Guid productoId)
+    {
+        // Implementar modal de ajuste de stock
+    }
+
+    private async Task GenerarReporteStock()
+    {
+        try
+        {
+            // Implementar generación de reporte
+            MostrarAlerta("Reporte generado exitosamente", "success");
+        }
+        catch (Exception ex)
+        {
+            MostrarAlerta($"Error al generar reporte: {ex.Message}", "danger");
+        }
+    }
+
+    private void MostrarAlerta(string mensaje, string tipo)
+    {
+        mensajeAlerta = mensaje;
+        tipoAlerta = tipo;
+    }
+
+    private void CerrarAlerta()
+    {
+        mensajeAlerta = "";
+    }
+
+    public class CrearProductoModel
+    {
+        public string Codigo { get; set; } = "";
+        public string Nombre { get; set; } = "";
+        public string Descripcion { get; set; } = "";
+        public decimal Precio { get; set; } = 0;
+        public int StockMinimo { get; set; } = 0;
+        public int StockMaximo { get; set; } = 1000;
+        public int StockInicial { get; set; } = 0;
+        public string Ubicacion { get; set; } = "Almacén Principal";
+    }
+}

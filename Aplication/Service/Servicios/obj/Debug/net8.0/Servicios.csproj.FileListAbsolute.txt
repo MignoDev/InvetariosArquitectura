@@ -1,0 +1,15 @@
+C:\UC\Arquitectura\EntregaProyecto\ProyectoInventario\Aplication\Service\Servicios\bin\Debug\net8.0\Servicios.deps.json
+C:\UC\Arquitectura\EntregaProyecto\ProyectoInventario\Aplication\Service\Servicios\bin\Debug\net8.0\Servicios.dll
+C:\UC\Arquitectura\EntregaProyecto\ProyectoInventario\Aplication\Service\Servicios\bin\Debug\net8.0\Servicios.pdb
+C:\UC\Arquitectura\EntregaProyecto\ProyectoInventario\Aplication\Service\Servicios\bin\Debug\net8.0\Domain.dll
+C:\UC\Arquitectura\EntregaProyecto\ProyectoInventario\Aplication\Service\Servicios\bin\Debug\net8.0\Domain.pdb
+C:\UC\Arquitectura\EntregaProyecto\ProyectoInventario\Aplication\Service\Servicios\obj\Debug\net8.0\Servicios.csproj.AssemblyReference.cache
+C:\UC\Arquitectura\EntregaProyecto\ProyectoInventario\Aplication\Service\Servicios\obj\Debug\net8.0\Servicios.GeneratedMSBuildEditorConfig.editorconfig
+C:\UC\Arquitectura\EntregaProyecto\ProyectoInventario\Aplication\Service\Servicios\obj\Debug\net8.0\Servicios.AssemblyInfoInputs.cache
+C:\UC\Arquitectura\EntregaProyecto\ProyectoInventario\Aplication\Service\Servicios\obj\Debug\net8.0\Servicios.AssemblyInfo.cs
+C:\UC\Arquitectura\EntregaProyecto\ProyectoInventario\Aplication\Service\Servicios\obj\Debug\net8.0\Servicios.csproj.CoreCompileInputs.cache
+C:\UC\Arquitectura\EntregaProyecto\ProyectoInventario\Aplication\Service\Servicios\obj\Debug\net8.0\Servicios.csproj.Up2Date
+C:\UC\Arquitectura\EntregaProyecto\ProyectoInventario\Aplication\Service\Servicios\obj\Debug\net8.0\Servicios.dll
+C:\UC\Arquitectura\EntregaProyecto\ProyectoInventario\Aplication\Service\Servicios\obj\Debug\net8.0\refint\Servicios.dll
+C:\UC\Arquitectura\EntregaProyecto\ProyectoInventario\Aplication\Service\Servicios\obj\Debug\net8.0\Servicios.pdb
+C:\UC\Arquitectura\EntregaProyecto\ProyectoInventario\Aplication\Service\Servicios\obj\Debug\net8.0\ref\Servicios.dll
