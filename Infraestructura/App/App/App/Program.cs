@@ -3,6 +3,7 @@ using AppBlazor.Services;
 using AppBlazor.Extensions;
 using Radzen;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -24,6 +25,7 @@ builder.Services.AddHttpClient("ApiClient", client =>
 
 // Registrar servicios de la aplicación
 builder.Services.AddAppServices();
+builder.Services.AddRadzenComponents();
 
 // Configurar logging
 builder.Logging.ClearProviders();

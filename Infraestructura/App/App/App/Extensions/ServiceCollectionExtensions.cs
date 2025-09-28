@@ -1,4 +1,5 @@
 using AppBlazor.Services;
+using Radzen;
 
 namespace AppBlazor.Extensions
 {
@@ -47,6 +48,8 @@ namespace AppBlazor.Extensions
                 var httpClient = httpClientFactory.CreateClient("ApiClient");
                 return new ReporteService(httpClient);
             });
+
+            services.AddScoped<DialogService>();
 
             return services;
         }

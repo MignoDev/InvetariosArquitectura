@@ -37,56 +37,26 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Crea un nuevo producto en el inventario
         /// </summary>
-        public async Task<Producto> CrearProductoAsync(string codigo, string nombre, string descripcion, 
-            decimal precio, int stockMinimo, int stockMaximo, int stockInicial, 
-            string ubicacion = "Almacén Principal", Guid? categoriaId = null)
+        public async Task<Producto> CrearProductoAsync(Producto producto)
         {
             // Validar que el código no exista
-            if (await _repositorioProducto.ExisteCodigoAsync(codigo))
+            if (await _repositorioProducto.ExisteCodigoAsync(producto.Codigo))
             {
-                throw new InvalidOperationException($"Ya existe un producto con el código '{codigo}'");
+                throw new InvalidOperationException($"Ya existe un producto con el código '{producto.Codigo}'");
             }
 
             // Validar categoría si se proporciona
-            if (categoriaId.HasValue)
+            if (producto.CategoriaId.HasValue)
             {
-                var categoria = await _repositorioCategoria.ObtenerPorIdAsync(categoriaId.Value);
+                var categoria = await _repositorioCategoria.ObtenerPorIdAsync(producto.CategoriaId.Value);
                 if (categoria == null)
                 {
                     throw new ArgumentException("La categoría especificada no existe");
                 }
             }
 
-            // Crear producto
-            var producto = new Producto
-            {
-                Id = Guid.NewGuid(),
-                Codigo = codigo,
-                Nombre = nombre,
-                Descripcion = descripcion,
-                Precio = precio,
-                StockMinimo = stockMinimo,
-                StockMaximo = stockMaximo,
-                Activo = true,
-                FechaCreacion = DateTime.UtcNow,
-                FechaModificacion = DateTime.UtcNow,
-                CategoriaId = categoriaId
-            };
-
             // Guardar producto
             var productoGuardado = await _repositorioProducto.CrearAsync(producto);
-
-            // Crear stock inicial
-            var stock = new Stock
-            {
-                Id = Guid.NewGuid(),
-                ProductoId = productoGuardado.Id,
-                Cantidad = stockInicial,
-                Ubicacion = ubicacion,
-                FechaUltimaActualizacion = DateTime.UtcNow
-            };
-
-            await _repositorioStock.CrearAsync(stock);
 
             return productoGuardado;
         }

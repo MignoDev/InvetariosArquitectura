@@ -55,8 +55,8 @@ namespace AppBlazor.Services
         /// </summary>
         public async Task<ServiceResult<Stock>> AjustarStockAsync(Guid productoId, int cantidad)
         {
-            var request = new { Cantidad = cantidad };
-            return await ExecuteAsync(async () => await PutAsync<Stock>($"api/inventario/productos/{productoId}/stock/ajustar", request));
+            var request = new { id = productoId, NuevaCantidad = cantidad };
+            return await ExecuteAsync(async () => await PutAsync<Stock>($"api/inventario/productos/stock/ajustar", request));
         }
     }
 }

@@ -21,7 +21,7 @@ namespace ProyectoInventario.Domain.Models
         public string? Descripcion { get; set; }
         
         [Required]
-        public decimal Precio { get; set; }
+        public decimal? Precio { get; set; }
         
         public int StockMinimo { get; set; } = 0;
         

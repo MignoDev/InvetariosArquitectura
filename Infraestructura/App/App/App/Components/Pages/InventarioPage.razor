@@ -4,9 +4,7 @@
 @using ProyectoInventario.Domain.Models
 
 
-@inject CategoriaService CategoriaService
-@inject ProductoService ProductoService
-@inject ProveedorService ProveedorService
+
 
 <PageTitle>Gestión de Inventario</PageTitle>
 
@@ -22,21 +20,24 @@
             <RadzenTabs TabPosition="TabPosition.Top">
                 <Tabs>
 
-                <RadzenTabsItem Text="Productos">
+                    <RadzenTabsItem Text="Productos">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h3 class="mb-0">Productos</h3>
-                                <button class="btn btn-primary" @onclick="CargarProductos" disabled="@cargando">
-                                    @if (cargando)
-                                    {
-                                        <span class="spinner-border spinner-border-sm" role="status"></span>
-                                    }
-                                    else
-                                    {
-                                        <i class="fas fa-sync"></i>
-                                    }
-                                    Actualizar
-                                </button>
+                                <div class="d-flex w-100 justify-content-end gap-2">
+                                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add" Text="Registrar producto" Click="AbrirDialogoProductoAsync"/>
+                                    <RadzenButton ButtonStyle="ButtonStyle.Success" Click="CargarProductos" disabled="@cargando">
+                                        @if (cargando)
+                                        {
+                                            <span class="spinner-border spinner-border-sm" role="status"></span>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-sync"></i>
+                                        }
+                                        Actualizar
+                                    </RadzenButton>
+                                </div>
                             </div>
                             <div class="card-body">
                                 @if (productos == null)
@@ -56,9 +57,11 @@
                                                     <th>Código</th>
                                                     <th>Nombre</th>
                                                     <th>Precio</th>
+                                                    <th>Stock</th>
+
                                                     <th>Categoría</th>
                                                     <th>Estado</th>
-                                                    <th>Acciones</th>
+                                                    <th>Editar</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -67,20 +70,16 @@
                                                     <tr>
                                                         <td>@producto.Codigo</td>
                                                         <td>@producto.Nombre</td>
-                                                        <td>@producto.Precio.ToString("C")</td>
-                                                        
+                                                        <td>@producto.Precio?.ToString("C")</td>
+                                                        <td>@producto.StockActual</td>
+                                                        <td>@categorias?.Where(c => c.Id == producto.CategoriaId).Select(c => c.Nombre).FirstOrDefault()</td>
                                                         <td>
                                                             <span class="badge @(producto.Activo ? "bg-success" : "bg-secondary")">
                                                                 @(producto.Activo ? "Activo" : "Inactivo")
                                                             </span>
                                                         </td>
                                                         <td>
-                                                            <button class="btn btn-sm btn-outline-primary" @onclick="() => EditarProducto(producto.Id)">
-                                                                <i class="fas fa-edit"></i>
-                                                            </button>
-                                                            <button class="btn btn-sm btn-outline-danger" @onclick="() => EliminarProducto(producto.Id)">
-                                                                <i class="fas fa-trash"></i>
-                                                            </button>
+                                                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Base" Click="@(() => AbrirDialogoStockAsync(producto))"/>
                                                         </td>
                                                     </tr>
                                                 }
@@ -132,7 +131,6 @@
                                                     <th>Nombre</th>
                                                     <th>Descripción</th>
                                                     <th>Estado</th>
-                                                    <th>Acciones</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -145,14 +143,69 @@
                                                             <span class="badge @(categoria.Activo ? "bg-success" : "bg-secondary")">
                                                                 @(categoria.Activo ? "Activo" : "Inactivo")
                                                             </span>
-                                                        </td>
+                                                        </td>                                                     
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle"></i> No hay categorías registradas.
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </RadzenTabsItem>
+
+                    <RadzenTabsItem>
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h3 class="mb-0">Categorías</h3>
+                                <button class="btn btn-primary" @onclick="CargarCategorias" disabled="@cargando">
+                                    @if (cargando)
+                                    {
+                                        <span class="spinner-border spinner-border-sm" role="status"></span>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-sync"></i>
+                                    }
+                                    Actualizar
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                @if (categorias == null)
+                                {
+                                    <div class="text-center">
+                                        <div class="spinner-border" role="status">
+                                            <span class="visually-hidden">Cargando...</span>
+                                        </div>
+                                    </div>
+                                }
+                                else if (categorias.Any())
+                                {
+                                    <div class="table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nombre</th>
+                                                    <th>Descripción</th>
+                                                    <th>Estado</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var categoria in categorias)
+                                                {
+                                                    <tr>
+                                                        <td>@categoria.Nombre</td>
+                                                        <td>@categoria.Descripcion</td>
                                                         <td>
-                                                            <button class="btn btn-sm btn-outline-primary" @onclick="() => EditarCategoria(categoria.Id)">
-                                                                <i class="fas fa-edit"></i>
-                                                            </button>
-                                                            @* <button class="btn btn-sm btn-outline-danger" @onclick="() => EliminarCategoria(categoria.Id)">
-                                                                <i class="fas fa-trash"></i>
-                                                            </button> *@
+                                                            <span class="badge @(categoria.Activo ? "bg-success" : "bg-secondary")">
+                                                                @(categoria.Activo ? "Activo" : "Inactivo")
+                                                            </span>
                                                         </td>
                                                     </tr>
                                                 }
@@ -170,7 +223,7 @@
                         </div>
                     </RadzenTabsItem>
                 
-                    <RadzenTabsItem Text="Proveedores">
+                @*     <RadzenTabsItem Text="Proveedores">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h3 class="mb-0">Proveedores</h3>
@@ -230,7 +283,7 @@
                                                             </button>
                                                             @* <button class="btn btn-sm btn-outline-danger" @onclick="() => EliminarProveedor(proveedor.Id)">
                                                                 <i class="fas fa-trash"></i>
-                                                            </button> *@
+                                                            </button> 
                                                         </td>
                                                     </tr>
                                                 }
@@ -272,136 +325,10 @@
                                 </div>
                             </div>
                         </div>
-                </RadzenTabsItem>
+                </RadzenTabsItem> *@
                 </Tabs>
             </RadzenTabs>
         </div>
     </div>
 </div>
 
-@code {
-    private List<ProductoConStock>? productos;
-    private List<Categoria>? categorias;
-    private List<Proveedor>? proveedores;
-    private bool cargando = false;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await CargarDatosIniciales();
-    }
-
-    private async Task CargarDatosIniciales()
-    {
-        Console.WriteLine("Iniciando carga de datos iniciales...");
-        cargando = true;
-        try
-        {
-            // Cargar datos en paralelo pero sin bloquear la UI
-            var tareas = new[]
-            {
-                CargarProductos(),
-                CargarCategorias(),
-                CargarProveedores()
-            };
-            
-            await Task.WhenAll(tareas);
-            Console.WriteLine("Carga de datos iniciales completada");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error en carga inicial: {ex.Message}");
-        }
-        finally
-        {
-            cargando = false;
-            StateHasChanged();
-        }
-    }
-
-    private async Task CargarProductos()
-    {
-        try
-        {
-            Console.WriteLine("Iniciando carga de productos...");
-            productos = await ProductoService.ObtenerTodosAsync();
-            Console.WriteLine($"Productos cargados: {productos.Count}");
-            
-            StateHasChanged(); // Forzar actualización de la UI
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Excepción al cargar productos: {ex.Message}");
-            productos = new List<ProductoConStock>();
-        }
-    }
-
-    private async Task CargarCategorias()
-    {
-        try
-        {
-            Console.WriteLine("Iniciando carga de categorías...");
-            categorias = await CategoriaService.ObtenerTodasAsync();
-            Console.WriteLine($"Categorías cargadas: {categorias.Count}");
-            
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Excepción al cargar categorías: {ex.Message}");
-            categorias = new List<Categoria>();
-        }
-    }
-
-    private async Task CargarProveedores()
-    {
-        try
-        {
-            Console.WriteLine("Iniciando carga de proveedores...");
-            proveedores = await ProveedorService.ObtenerTodosAsync();
-            Console.WriteLine($"Proveedores cargados: {proveedores.Count}");
-            
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Excepción al cargar proveedores: {ex.Message}");
-            proveedores = new List<Proveedor>();
-        }
-    }
-
-    private void EditarProducto(Guid id)
-    {
-        Console.WriteLine($"Editar producto: {id}");
-    }
-
-    private async Task EliminarProducto(Guid id)
-    {
-        try
-        {
-            // Nota: El método EliminarAsync no existe en la API actual
-            // Por ahora solo mostramos un mensaje
-            Console.WriteLine($"Eliminar producto: {id} - Funcionalidad no implementada en la API");
-            
-            // TODO: Implementar eliminación cuando esté disponible en la API
-            // await CargarProductos();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Excepción al eliminar producto: {ex.Message}");
-        }
-    }
-
-    private void EditarCategoria(Guid id)
-    {
-        Console.WriteLine($"Editar categoría: {id}");
-    }
-
-    
-
-    private void EditarProveedor(Guid id)
-    {
-        Console.WriteLine($"Editar proveedor: {id}");
-    }
-
-    
-}

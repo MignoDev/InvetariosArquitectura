@@ -66,6 +66,7 @@ BEGIN
         p.CategoriaId,
         c.Nombre AS CategoriaNombre,
         c.Descripcion AS CategoriaDescripcion,
+        s.Id AS StockId,
         s.Cantidad AS StockActual,
         s.Ubicacion,
         CASE 
@@ -118,7 +119,7 @@ END
 GO
 
 -- Crear nuevo producto
-CREATE OR ALTER PROCEDURE sp_CrearProducto
+CREATE OR ALTER   PROCEDURE sp_CrearProducto
     @Codigo VARCHAR(50),
     @Nombre NVARCHAR(200),
     @Descripcion NVARCHAR(500) = NULL,
@@ -126,8 +127,7 @@ CREATE OR ALTER PROCEDURE sp_CrearProducto
     @StockMinimo INT = 0,
     @StockMaximo INT = 1000,
     @CategoriaId UNIQUEIDENTIFIER = NULL,
-    @StockInicial INT = 0,
-    @Ubicacion VARCHAR(100) = 'Almacén Principal'
+    @StockInicial INT = 0
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -141,8 +141,8 @@ BEGIN
         VALUES (@ProductoId, @Codigo, @Nombre, @Descripcion, @Precio, @StockMinimo, @StockMaximo, @CategoriaId);
         
         -- Insertar stock inicial
-        INSERT INTO Stock (ProductoId, Cantidad, Ubicacion)
-        VALUES (@ProductoId, @StockInicial, @Ubicacion);
+        INSERT INTO Stock (ProductoId, Cantidad)
+        VALUES (@ProductoId, @StockInicial);
         
         COMMIT TRANSACTION;
         

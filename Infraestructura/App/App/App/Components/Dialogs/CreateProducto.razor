@@ -1,0 +1,76 @@
+﻿
+<RadzenTemplateForm Data="ProductoParam">
+    <div class="d-flex flex-column w-100 gap-2">
+
+        <RadzenFormField Text="Nombre" class="w-100">
+            <RadzenTextBox @bind-Value="ProductoParam.Nombre" Name="Nombre" ReadOnly="@(!IsNew)"/>
+        </RadzenFormField>
+        @if(IsNew)
+        {            
+            <RadzenFormField Text="Código" class="w-100">
+                <RadzenTextBox @bind-Value="ProductoParam.Codigo" />
+            </RadzenFormField>
+
+            <RadzenFormField Text="Precio" class="w-100">
+                <RadzenNumeric @bind-Value="ProductoParam.Precio" />
+            </RadzenFormField>
+
+            <RadzenFormField Text="Categoría" class="w-100">
+                <RadzenDropDown Data="Categorias" @bind-Value="ProductoParam.CategoriaId" ValueProperty="@nameof(Categoria.Id)"
+                            TextProperty="@nameof(Categoria.Nombre)"/>
+            </RadzenFormField>    
+        }
+
+        <RadzenFormField Text="Cantidad en stock" class="w-100">
+            <RadzenNumeric @bind-Value="ProductoParam.StockInicial"/>
+        </RadzenFormField>
+
+        <div class="d-flex gap-2 justify-content-center w-100">
+            <RadzenButton ButtonType="ButtonType.Submit" Click="Submit" ButtonStyle="ButtonStyle.Success" Text="Crear"/>
+            <RadzenButton Click="@(() => DialogService.Close(null))" ButtonStyle="ButtonStyle.Base" Text="Cancelar" />
+        </div>
+    </div>
+
+</RadzenTemplateForm>
+
+
+@code {
+
+
+    [Inject] DialogService DialogService { get; set; }
+    [Inject] ProductoService ProductoService { get; set; }
+
+
+    [Parameter] public List<Categoria> Categorias { get; set; }
+
+    [Parameter] public ProductoConStock ProductoParam { get; set; }
+
+    private bool IsNew = false;
+
+    protected override void OnInitialized()
+    {
+        if (ProductoParam == null)
+        {
+            IsNew = true;
+            ProductoParam = new ProductoConStock();
+        }
+    }
+
+    private async Task Submit()
+    {
+
+        try
+        {
+            if (IsNew) await ProductoService.CrearAsync(ProductoParam);
+            else await ProductoService.AjustarStockAsync(ProductoParam.Id, ProductoParam.StockInicial ?? 0);
+
+            DialogService.Close(true);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+
+    }
+
+}

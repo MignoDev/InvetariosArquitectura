@@ -141,7 +141,7 @@ namespace ProyectoInventario.Infraestructura.Api.Controllers
         /// Crea un nuevo producto
         /// </summary>
         [HttpPost("productos")]
-        public async Task<IActionResult> CrearProducto([FromBody] Producto request)
+        public async Task<IActionResult> CrearProducto([FromBody] ProductoConStock request)
         {
             try
             {
@@ -154,16 +154,11 @@ namespace ProyectoInventario.Infraestructura.Api.Controllers
                     using (var command = new SqlCommand("sp_CrearProducto", connection))
                     {
                         command.CommandType = CommandType.StoredProcedure;
-                        command.Parameters.AddWithValue("@Id", productoId);
                         command.Parameters.AddWithValue("@Codigo", request.Codigo);
                         command.Parameters.AddWithValue("@Nombre", request.Nombre);
-                        command.Parameters.AddWithValue("@Descripcion", request.Descripcion ?? (object)DBNull.Value);
                         command.Parameters.AddWithValue("@Precio", request.Precio);
-                        command.Parameters.AddWithValue("@StockMinimo", request.StockMinimo);
-                        command.Parameters.AddWithValue("@StockMaximo", request.StockMaximo);
                         command.Parameters.AddWithValue("@CategoriaId", request.CategoriaId ?? (object)DBNull.Value);
-                        command.Parameters.AddWithValue("@StockInicial", 0); // Stock inicial por defecto
-                        command.Parameters.AddWithValue("@Ubicacion", "Almacén Principal");
+                        command.Parameters.AddWithValue("@StockInicial", request.StockInicial); // Stock inicial por defecto
                         
                         using (var reader = await command.ExecuteReaderAsync())
                         {
@@ -174,20 +169,7 @@ namespace ProyectoInventario.Infraestructura.Api.Controllers
                                     Id = reader.GetGuid("Id"),
                                     Codigo = reader.GetString("Codigo"),
                                     Nombre = reader.GetString("Nombre"),
-                                    Descripcion = reader.IsDBNull("Descripcion") ? null : reader.GetString("Descripcion"),
-                                    Precio = reader.GetDecimal("Precio"),
-                                    StockMinimo = reader.GetInt32("StockMinimo"),
-                                    StockMaximo = reader.GetInt32("StockMaximo"),
-                                    Activo = reader.GetBoolean("Activo"),
-                                    FechaCreacion = reader.GetDateTime("FechaCreacion"),
-                                    FechaModificacion = reader.GetDateTime("FechaModificacion"),
-                                    CategoriaId = reader.IsDBNull("CategoriaId") ? (Guid?)null : reader.GetGuid("CategoriaId"),
-                                    CategoriaNombre = reader.IsDBNull("CategoriaNombre") ? null : reader.GetString("CategoriaNombre"),
-                                    StockActual = reader.IsDBNull("StockActual") ? 0 : reader.GetInt32("StockActual"),
-                                    TieneStockBajo = reader.IsDBNull("TieneStockBajo") ? false : reader.GetBoolean("TieneStockBajo"),
-                                    TieneExcesoStock = reader.IsDBNull("TieneExcesoStock") ? false : reader.GetBoolean("TieneExcesoStock"),
-                                    EstaAgotado = reader.IsDBNull("EstaAgotado") ? false : reader.GetBoolean("EstaAgotado"),
-                                    ValorTotalInventario = reader.IsDBNull("ValorTotalInventario") ? 0 : reader.GetDecimal("ValorTotalInventario")
+                                    CategoriaId = reader.IsDBNull("CategoriaId") ? (Guid?)null : reader.GetGuid("CategoriaId")
                                 };
 
                                 return CreatedAtAction(nameof(ObtenerProducto), new { id = productoId }, 
@@ -523,8 +505,8 @@ namespace ProyectoInventario.Infraestructura.Api.Controllers
         /// <summary>
         /// Ajusta el stock de un producto
         /// </summary>
-        [HttpPut("productos/{id}/stock/ajustar")]
-        public async Task<IActionResult> AjustarStock(Guid id, [FromBody] AjusteStockRequest request)
+        [HttpPut("productos/stock/ajustar")]
+        public async Task<IActionResult> AjustarStock([FromBody] AjusteStockRequest request)
         {
             try
             {
@@ -535,8 +517,8 @@ namespace ProyectoInventario.Infraestructura.Api.Controllers
                     using (var command = new SqlCommand("sp_AjustarStock", connection))
                     {
                         command.CommandType = CommandType.StoredProcedure;
-                        command.Parameters.AddWithValue("@ProductoId", id);
-                        command.Parameters.AddWithValue("@NuevaCantidad", request.NuevaCantidad);
+                        command.Parameters.Add("@ProductoId", SqlDbType.UniqueIdentifier).Value = request.id;
+                        command.Parameters.AddWithValue("@CantidadAjuste", request.NuevaCantidad);
                         
                         using (var reader = await command.ExecuteReaderAsync())
                         {
@@ -836,6 +818,7 @@ namespace ProyectoInventario.Infraestructura.Api.Controllers
     /// </summary>
     public class AjusteStockRequest
     {
+        public Guid id { get; set; }
         public int NuevaCantidad { get; set; }
     }
 }
