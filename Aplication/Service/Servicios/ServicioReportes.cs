@@ -10,7 +10,7 @@ namespace ProyectoInventario.Application.Service.Servicios
     /// Servicio de aplicación para la generación de reportes
     /// Implementa la lógica de negocio para reportes del inventario
     /// </summary>
-    public class ServicioReportes
+    public class ServicioReportes : IServicioReportes
     {
         private readonly IRepositorioProducto _repositorioProducto;
         private readonly IRepositorioStock _repositorioStock;

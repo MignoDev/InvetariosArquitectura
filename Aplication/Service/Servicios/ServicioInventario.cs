@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ProyectoInventario.Domain.Models;
 using ProyectoInventario.Domain.Ports;
+using ProyectoInventario.Domain.Events;
 
 namespace ProyectoInventario.Application.Service.Servicios
 {
@@ -10,26 +11,29 @@ namespace ProyectoInventario.Application.Service.Servicios
     /// Servicio de aplicación para la gestión del inventario
     /// Implementa la lógica de negocio para productos, stock y movimientos
     /// </summary>
-    public class ServicioInventario
+    public class ServicioInventario : IServicioInventario
     {
         private readonly IRepositorioProducto _repositorioProducto;
         private readonly IRepositorioStock _repositorioStock;
         private readonly IRepositorioCategoria _repositorioCategoria;
         private readonly IRepositorioProveedor _repositorioProveedor;
         private readonly IRepositorioMovimiento _repositorioMovimiento;
+        private readonly IEventBus _eventBus;
 
         public ServicioInventario(
             IRepositorioProducto repositorioProducto,
             IRepositorioStock repositorioStock,
             IRepositorioCategoria repositorioCategoria,
             IRepositorioProveedor repositorioProveedor,
-            IRepositorioMovimiento repositorioMovimiento)
+            IRepositorioMovimiento repositorioMovimiento,
+            IEventBus eventBus)
         {
             _repositorioProducto = repositorioProducto;
             _repositorioStock = repositorioStock;
             _repositorioCategoria = repositorioCategoria;
             _repositorioProveedor = repositorioProveedor;
             _repositorioMovimiento = repositorioMovimiento;
+            _eventBus = eventBus;
         }
 
         #region Gestión de Productos
@@ -177,10 +181,37 @@ namespace ProyectoInventario.Application.Service.Servicios
                 throw new InvalidOperationException("El producto no tiene stock registrado");
             }
 
+            var cantidadAnterior = stock.Cantidad;
             stock.Cantidad += cantidad;
             stock.FechaUltimaActualizacion = DateTime.UtcNow;
 
-            return await _repositorioStock.ActualizarAsync(stock);
+            var stockActualizado = await _repositorioStock.ActualizarAsync(stock);
+
+            // Publicar evento de stock actualizado
+            var stockEvent = new StockActualizadoEvent(
+                productoId, 
+                producto.Nombre, 
+                cantidadAnterior, 
+                stock.Cantidad, 
+                "Entrada", 
+                stock.Ubicacion);
+
+            await _eventBus.PublishAsync(stockEvent);
+
+            // Verificar si el stock está bajo después de la actualización
+            if (stock.Cantidad <= producto.StockMinimo)
+            {
+                var stockBajoEvent = new StockBajoEvent(
+                    productoId, 
+                    producto.Nombre, 
+                    stock.Cantidad, 
+                    producto.StockMinimo, 
+                    stock.Ubicacion);
+
+                await _eventBus.PublishAsync(stockBajoEvent);
+            }
+
+            return stockActualizado;
         }
 
         /// <summary>
@@ -205,10 +236,48 @@ namespace ProyectoInventario.Application.Service.Servicios
                 throw new InvalidOperationException("No hay suficiente stock disponible");
             }
 
+            var cantidadAnterior = stock.Cantidad;
             stock.Cantidad -= cantidad;
             stock.FechaUltimaActualizacion = DateTime.UtcNow;
 
-            return await _repositorioStock.ActualizarAsync(stock);
+            var stockActualizado = await _repositorioStock.ActualizarAsync(stock);
+
+            // Publicar evento de stock actualizado
+            var stockEvent = new StockActualizadoEvent(
+                productoId, 
+                producto.Nombre, 
+                cantidadAnterior, 
+                stock.Cantidad, 
+                "Salida", 
+                stock.Ubicacion);
+
+            await _eventBus.PublishAsync(stockEvent);
+
+            // Verificar si el producto se agotó
+            if (stock.Cantidad == 0)
+            {
+                var productoAgotadoEvent = new ProductoAgotadoEvent(
+                    productoId, 
+                    producto.Nombre, 
+                    producto.Codigo, 
+                    stock.Ubicacion);
+
+                await _eventBus.PublishAsync(productoAgotadoEvent);
+            }
+            // Verificar si el stock está bajo
+            else if (stock.Cantidad <= producto.StockMinimo)
+            {
+                var stockBajoEvent = new StockBajoEvent(
+                    productoId, 
+                    producto.Nombre, 
+                    stock.Cantidad, 
+                    producto.StockMinimo, 
+                    stock.Ubicacion);
+
+                await _eventBus.PublishAsync(stockBajoEvent);
+            }
+
+            return stockActualizado;
         }
 
         /// <summary>

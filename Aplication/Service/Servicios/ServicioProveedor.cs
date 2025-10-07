@@ -10,7 +10,7 @@ namespace ProyectoInventario.Application.Service.Servicios
     /// Servicio de aplicación para la gestión de proveedores
     /// Implementa la lógica de negocio para proveedores
     /// </summary>
-    public class ServicioProveedor
+    public class ServicioProveedor : IServicioProveedor
     {
         private readonly IRepositorioProveedor _repositorioProveedor;
         private readonly IRepositorioMovimiento _repositorioMovimiento;

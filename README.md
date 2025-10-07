@@ -6,6 +6,7 @@ Sistema de gestión de inventario implementando **Arquitectura Hexagonal** con s
 
 - **Arquitectura Hexagonal (Ports & Adapters)**: Separación entre dominio, aplicación e infraestructura
 - **Inyección de Dependencias**: Configuración de servicios y repositorios
+- **Publish-Subscribe**: Sistema de eventos de dominio para comunicación desacoplada
 - **Microservicios**: API REST independiente y aplicación Blazor
 
 ## 📁 Estructura del Proyecto
@@ -14,11 +15,16 @@ Sistema de gestión de inventario implementando **Arquitectura Hexagonal** con s
 ProyectoInventario/
 ├── Domain/                          # Capa de Dominio
 │   └── Domain/Models/               # Entidades: Producto, Stock, Categoria, Proveedor
-│   └── Domain/Ports/                # Interfaces: IRepositorio*
+│   └── Domain/Ports/                # Interfaces: IRepositorio*, IEventBus, IServicio*
+│   └── Domain/Events/               # Eventos de dominio: StockActualizadoEvent, etc.
 ├── Aplication/                      # Capa de Aplicación
-│   └── Service/Servicios/           # Servicios de negocio
+│   └── Service/Servicios/           # Servicios de negocio con publicación de eventos
 ├── Infraestructura/                 # Capa de Infraestructura
 │   ├── Api/                         # API REST
+│   │   └── Infrastructure/          # Implementaciones de infraestructura
+│   │       ├── EventBus/            # InMemoryEventBus
+│   │       ├── EventHandlers/       # Manejadores de eventos
+│   │       └── Services/            # Servicios de infraestructura
 │   └── App/                         # App Blazor
 └── Scripts/                         # Scripts de base de datos
     ├── 01_CreateDatabase.sql
@@ -273,10 +279,49 @@ export ConnectionStrings__DefaultConnection="Data Source=localhost\\SQLEXPRESS;I
 - **Gestión de Stock**: Control de inventario y movimientos
 - **Gestión de Categorías**: Organización de productos
 - **Gestión de Proveedores**: Información de proveedores
+- **Sistema de Eventos**: Notificaciones automáticas y promociones
 - **API REST**: Endpoints para todas las operaciones
 - **Interfaz Web**: App Blazor para gestión visual
+
+## 🔄 Sistema de Eventos (Publish-Subscribe)
+
+### Eventos de Dominio Implementados:
+- **StockActualizadoEvent**: Se publica cuando cambia la cantidad de stock
+- **StockBajoEvent**: Se publica cuando el stock está por debajo del mínimo
+- **ProductoAgotadoEvent**: Se publica cuando un producto se agota completamente
+
+### Manejadores de Eventos:
+- **StockEventHandler**: Procesa eventos de stock y ejecuta acciones automáticas:
+  - Envía notificaciones por email cuando el stock está bajo
+  - Crea promociones automáticas para productos con exceso de stock
+  - Genera órdenes de compra urgentes para productos agotados
+
+### Servicios de Infraestructura:
+- **ServicioNotificacionEmail**: Envío de notificaciones por email
+- **ServicioPromocionesExterno**: Gestión de promociones automáticas
+- **ServicioProveedoresExterno**: Gestión de órdenes de compra
+- **InMemoryEventBus**: Bus de eventos en memoria para desarrollo
 
 ## 🛠️ Tecnologías
 
 - **.NET 8**, **Entity Framework Core**, **SQL Server**
 - **Blazor Server**, **ASP.NET Core Web API**
+- **Arquitectura Hexagonal**, **Patrón Publish-Subscribe**
+- **Inyección de Dependencias**, **Event-Driven Architecture**
+
+## 🚀 Ejemplo de Uso del Sistema de Eventos
+
+### Flujo Automático:
+1. **Usuario actualiza stock** → Se ejecuta `ServicioInventario.AgregarStockAsync()`
+2. **Se publica evento** → `StockActualizadoEvent` se envía al Event Bus
+3. **Manejador procesa evento** → `StockEventHandler` recibe el evento
+4. **Acciones automáticas**:
+   - Si stock < mínimo → Envía notificación por email
+   - Si stock > máximo → Crea promoción automática
+   - Si stock = 0 → Genera orden de compra urgente
+
+### Beneficios:
+- **Desacoplamiento**: Los servicios no conocen quién procesa los eventos
+- **Extensibilidad**: Fácil agregar nuevos manejadores sin modificar código existente
+- **Escalabilidad**: Preparado para microservicios y sistemas distribuidos
+- **Mantenibilidad**: Lógica de negocio separada de infraestructura

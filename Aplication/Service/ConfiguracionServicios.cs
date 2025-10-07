@@ -3,8 +3,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using ProyectoInventario.Domain.Ports;
 using ProyectoInventario.Application.Service.Servicios;
+using ProyectoInventario.Infraestructura.Api.Infrastructure.EventBus;
+using ProyectoInventario.Infraestructura.Api.Infrastructure.EventHandlers;
+using ProyectoInventario.Infraestructura.Api.Infrastructure.Services;
+using ProyectoInventario.Domain.Models;
+using ProyectoInventario.Domain.Events;
 
 namespace ProyectoInventario.Application.Service
 {
@@ -62,10 +68,20 @@ namespace ProyectoInventario.Application.Service
             // =============================================
 
             // Servicios de aplicación (lógica de negocio)
-            services.AddScoped<ServicioInventario>();
-            services.AddScoped<ServicioCategoria>();
-            services.AddScoped<ServicioProveedor>();
-            services.AddScoped<ServicioReportes>();
+            services.AddScoped<IServicioInventario, ServicioInventario>();
+            services.AddScoped<IServicioCategoria, ServicioCategoria>();
+            services.AddScoped<IServicioProveedor, ServicioProveedor>();
+            services.AddScoped<IServicioReportes, ServicioReportes>();
+
+            // =============================================
+            // CONFIGURACIÓN DEL BUS DE EVENTOS
+            // =============================================
+
+            // Registrar el bus de eventos
+            services.AddSingleton<IEventBus, InMemoryEventBus>();
+
+            // Registrar manejadores de eventos
+            services.AddScoped<StockEventHandler>();
 
             // =============================================
             // CONFIGURACIÓN DE SERVICIOS DE EVENTOS
@@ -73,6 +89,9 @@ namespace ProyectoInventario.Application.Service
 
             // Servicio de procesamiento de eventos en segundo plano
             services.AddHostedService<EventProcessorService>();
+            
+            // Servicio de suscripción de eventos
+            services.AddHostedService<EventSubscriptionService>();
 
             // =============================================
             // CONFIGURACIÓN DE SERVICIOS DE INFRAESTRUCTURA
@@ -337,6 +356,61 @@ namespace ProyectoInventario.Application.Service
         }
     }
 
+    /// <summary>
+    /// Implementación del publicador de eventos
+    /// </summary>
+    public class PublicadorEventosEF : IPublicadorEventos
+    {
+        private readonly IEventBus _eventBus;
+        private readonly ILogger<PublicadorEventosEF> _logger;
+
+        public PublicadorEventosEF(IEventBus eventBus, ILogger<PublicadorEventosEF> logger)
+        {
+            _eventBus = eventBus;
+            _logger = logger;
+        }
+
+        public async Task PublicarAsync<T>(T @event) where T : IDomainEvent
+        {
+            _logger.LogInformation("Publicando evento {EventType} con ID {EventId}", typeof(T).Name, @event.Id);
+            await _eventBus.PublishAsync(@event);
+        }
+
+        public async Task PublicarAsync(params IDomainEvent[] events)
+        {
+            foreach (var @event in events)
+            {
+                await PublicarAsync(@event);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Servicio de procesamiento de eventos en segundo plano
+    /// </summary>
+    public class EventProcessorService : BackgroundService
+    {
+        private readonly ILogger<EventProcessorService> _logger;
+
+        public EventProcessorService(ILogger<EventProcessorService> logger)
+        {
+            _logger = logger;
+        }
+
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            _logger.LogInformation("EventProcessorService iniciado");
+            
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                // Aquí se puede implementar lógica de procesamiento de eventos
+                // Por ejemplo, procesar eventos fallidos, reintentos, etc.
+                
+                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+            }
+        }
+    }
+
     // =============================================
     // INTERFACES Y CLASES DE CONFIGURACIÓN
     // =============================================
@@ -372,5 +446,110 @@ namespace ProyectoInventario.Application.Service
         public string UserName { get; set; } = "";
         public string Password { get; set; } = "";
         public bool EnableSsl { get; set; } = true;
+    }
+
+    // =============================================
+    // CLASES FICTICIAS PARA COMPILACIÓN
+    // =============================================
+
+    public class InventarioDbContext : DbContext
+    {
+        public InventarioDbContext(DbContextOptions<InventarioDbContext> options) : base(options) { }
+    }
+
+    public class RepositorioProductoEF : IRepositorioProducto
+    {
+        public Task<Producto> ObtenerPorIdAsync(Guid id) => throw new NotImplementedException();
+        public Task<Producto> ObtenerPorCodigoAsync(string codigo) => throw new NotImplementedException();
+        public Task<IEnumerable<Producto>> ObtenerTodosAsync() => throw new NotImplementedException();
+        public Task<IEnumerable<Producto>> ObtenerActivosAsync() => throw new NotImplementedException();
+        public Task<Producto> CrearAsync(Producto producto) => throw new NotImplementedException();
+        public Task<Producto> ActualizarAsync(Producto producto) => throw new NotImplementedException();
+        public Task EliminarAsync(Guid id) => throw new NotImplementedException();
+        public Task<IEnumerable<Producto>> BuscarPorNombreAsync(string nombre) => throw new NotImplementedException();
+        public Task<IEnumerable<Producto>> BuscarPorCategoriaAsync(Guid categoriaId) => throw new NotImplementedException();
+        public Task<IEnumerable<Producto>> BuscarConStockBajoAsync() => throw new NotImplementedException();
+        public Task<IEnumerable<Producto>> BuscarConExcesoStockAsync() => throw new NotImplementedException();
+        public Task<IEnumerable<Producto>> BuscarAgotadosAsync() => throw new NotImplementedException();
+        public Task<(IEnumerable<Producto> Productos, int Total)> ObtenerPaginadosAsync(int pagina, int tamañoPagina) => throw new NotImplementedException();
+        public Task<(IEnumerable<Producto> Productos, int Total)> BuscarPaginadosAsync(string terminoBusqueda, int pagina, int tamañoPagina) => throw new NotImplementedException();
+        public Task<bool> ExisteCodigoAsync(string codigo) => throw new NotImplementedException();
+        public Task<bool> ExisteCodigoAsync(string codigo, Guid idExcluir) => throw new NotImplementedException();
+        public Task<int> ContarTotalAsync() => throw new NotImplementedException();
+        public Task<int> ContarActivosAsync() => throw new NotImplementedException();
+        public Task<int> ContarConStockBajoAsync() => throw new NotImplementedException();
+        public Task<int> ContarAgotadosAsync() => throw new NotImplementedException();
+    }
+
+    public class RepositorioStockEF : IRepositorioStock
+    {
+        public Task<Stock> ObtenerPorIdAsync(Guid id) => throw new NotImplementedException();
+        public Task<Stock> ObtenerPorProductoIdAsync(Guid productoId) => throw new NotImplementedException();
+        public Task<IEnumerable<Stock>> ObtenerTodosAsync() => throw new NotImplementedException();
+        public Task<Stock> CrearAsync(Stock stock) => throw new NotImplementedException();
+        public Task<Stock> ActualizarAsync(Stock stock) => throw new NotImplementedException();
+        public Task EliminarAsync(Guid id) => throw new NotImplementedException();
+        public Task<IEnumerable<Stock>> BuscarPorUbicacionAsync(string ubicacion) => throw new NotImplementedException();
+        public Task<IEnumerable<Stock>> BuscarConStockBajoAsync() => throw new NotImplementedException();
+        public Task<IEnumerable<Stock>> BuscarConExcesoStockAsync() => throw new NotImplementedException();
+        public Task<IEnumerable<Stock>> BuscarAgotadosAsync() => throw new NotImplementedException();
+        public Task<Stock> AjustarStockAsync(Guid productoId, int nuevaCantidad) => throw new NotImplementedException();
+        public Task<Stock> AgregarStockAsync(Guid productoId, int cantidad) => throw new NotImplementedException();
+        public Task<Stock> ReducirStockAsync(Guid productoId, int cantidad) => throw new NotImplementedException();
+        public Task<bool> TieneStockDisponibleAsync(Guid productoId, int cantidadRequerida) => throw new NotImplementedException();
+        public Task<int> ObtenerCantidadDisponibleAsync(Guid productoId) => throw new NotImplementedException();
+        public Task<int> ContarConStockBajoAsync() => throw new NotImplementedException();
+        public Task<int> ContarAgotadosAsync() => throw new NotImplementedException();
+        public Task<int> ContarConExcesoStockAsync() => throw new NotImplementedException();
+    }
+
+    public class RepositorioCategoriaEF : IRepositorioCategoria
+    {
+        public Task<Categoria> ObtenerPorIdAsync(Guid id) => throw new NotImplementedException();
+        public Task<Categoria> ObtenerPorNombreAsync(string nombre) => throw new NotImplementedException();
+        public Task<IEnumerable<Categoria>> ObtenerTodasAsync() => throw new NotImplementedException();
+        public Task<IEnumerable<Categoria>> ObtenerActivasAsync() => throw new NotImplementedException();
+        public Task<Categoria> CrearAsync(Categoria categoria) => throw new NotImplementedException();
+        public Task<Categoria> ActualizarAsync(Categoria categoria) => throw new NotImplementedException();
+        public Task EliminarAsync(Guid id) => throw new NotImplementedException();
+        public Task<IEnumerable<Categoria>> BuscarPorNombreAsync(string nombre) => throw new NotImplementedException();
+        public Task<bool> ExisteNombreAsync(string nombre) => throw new NotImplementedException();
+        public Task<bool> ExisteNombreAsync(string nombre, Guid idExcluir) => throw new NotImplementedException();
+        public Task<int> ContarTotalAsync() => throw new NotImplementedException();
+        public Task<int> ContarActivasAsync() => throw new NotImplementedException();
+    }
+
+    public class RepositorioProveedorEF : IRepositorioProveedor
+    {
+        public Task<Proveedor> ObtenerPorIdAsync(Guid id) => throw new NotImplementedException();
+        public Task<Proveedor> ObtenerPorCodigoAsync(string codigo) => throw new NotImplementedException();
+        public Task<IEnumerable<Proveedor>> ObtenerTodosAsync() => throw new NotImplementedException();
+        public Task<IEnumerable<Proveedor>> ObtenerActivosAsync() => throw new NotImplementedException();
+        public Task<Proveedor> CrearAsync(Proveedor proveedor) => throw new NotImplementedException();
+        public Task<Proveedor> ActualizarAsync(Proveedor proveedor) => throw new NotImplementedException();
+        public Task EliminarAsync(Guid id) => throw new NotImplementedException();
+        public Task<IEnumerable<Proveedor>> BuscarPorNombreAsync(string nombre) => throw new NotImplementedException();
+        public Task<IEnumerable<Proveedor>> BuscarPorEmailAsync(string email) => throw new NotImplementedException();
+        public Task<IEnumerable<Proveedor>> BuscarConInformacionCompletaAsync() => throw new NotImplementedException();
+        public Task<bool> ExisteCodigoAsync(string codigo) => throw new NotImplementedException();
+        public Task<bool> ExisteCodigoAsync(string codigo, Guid idExcluir) => throw new NotImplementedException();
+        public Task<bool> ExisteEmailAsync(string email) => throw new NotImplementedException();
+        public Task<bool> ExisteEmailAsync(string email, Guid idExcluir) => throw new NotImplementedException();
+        public Task<int> ContarTotalAsync() => throw new NotImplementedException();
+        public Task<int> ContarActivosAsync() => throw new NotImplementedException();
+        public Task<int> ContarConInformacionCompletaAsync() => throw new NotImplementedException();
+    }
+
+    public class RepositorioMovimientoEF : IRepositorioMovimiento
+    {
+        public Task<EntradaProducto> CrearEntradaAsync(EntradaProducto entrada) => throw new NotImplementedException();
+        public Task<SalidaProducto> CrearSalidaAsync(SalidaProducto salida) => throw new NotImplementedException();
+        public Task<IEnumerable<EntradaProducto>> ObtenerEntradasPorProductoAsync(Guid productoId) => throw new NotImplementedException();
+        public Task<IEnumerable<SalidaProducto>> ObtenerSalidasPorProductoAsync(Guid productoId) => throw new NotImplementedException();
+        public Task<IEnumerable<EntradaProducto>> ObtenerEntradasPorProveedorAsync(Guid proveedorId) => throw new NotImplementedException();
+        public Task<IEnumerable<EntradaProducto>> ObtenerEntradasPorFechaAsync(DateTime fechaInicio, DateTime fechaFin) => throw new NotImplementedException();
+        public Task<IEnumerable<SalidaProducto>> ObtenerSalidasPorFechaAsync(DateTime fechaInicio, DateTime fechaFin) => throw new NotImplementedException();
+        public Task<IEnumerable<object>> ObtenerMovimientosPorProductoAsync(Guid productoId) => throw new NotImplementedException();
+        public Task<bool> ExisteEntradaConFacturaAsync(string numeroFactura) => throw new NotImplementedException();
     }
 }
