@@ -7,7 +7,7 @@ namespace ProyectoInventario.Domain.Events
     /// </summary>
     public abstract class BaseDomainEvent : IDomainEvent
     {
-        public Guid Id { get; } = Guid.NewGuid();
+        public int Id { get; }
         public DateTime OccurredOn { get; } = DateTime.UtcNow;
         public int Version { get; } = 1;
     }

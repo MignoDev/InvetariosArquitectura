@@ -12,17 +12,17 @@ namespace ProyectoInventario.Domain.Ports
     public interface IRepositorioProducto
     {
         // Operaciones CRUD básicas
-        Task<Producto> ObtenerPorIdAsync(Guid id);
+        Task<Producto> ObtenerPorIdAsync(int id);
         Task<Producto> ObtenerPorCodigoAsync(string codigo);
         Task<IEnumerable<Producto>> ObtenerTodosAsync();
         Task<IEnumerable<Producto>> ObtenerActivosAsync();
         Task<Producto> CrearAsync(Producto producto);
         Task<Producto> ActualizarAsync(Producto producto);
-        Task EliminarAsync(Guid id);
+        Task EliminarAsync(int id);
 
         // Operaciones de búsqueda
         Task<IEnumerable<Producto>> BuscarPorNombreAsync(string nombre);
-        Task<IEnumerable<Producto>> BuscarPorCategoriaAsync(Guid categoriaId);
+        Task<IEnumerable<Producto>> BuscarPorCategoriaAsync(int categoriaId);
         Task<IEnumerable<Producto>> BuscarConStockBajoAsync();
         Task<IEnumerable<Producto>> BuscarConExcesoStockAsync();
         Task<IEnumerable<Producto>> BuscarAgotadosAsync();
@@ -33,7 +33,7 @@ namespace ProyectoInventario.Domain.Ports
 
         // Operaciones de validación
         Task<bool> ExisteCodigoAsync(string codigo);
-        Task<bool> ExisteCodigoAsync(string codigo, Guid idExcluir);
+        Task<bool> ExisteCodigoAsync(string codigo, int idExcluir);
 
         // Operaciones de conteo
         Task<int> ContarTotalAsync();

@@ -7,14 +7,12 @@ namespace ProyectoInventario.Domain.Models
     /// </summary>
     public class Stock
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         
-        [Required]
-        public Guid ProductoId { get; set; }
+        public int ProductoId { get; set; }
         
         public int Cantidad { get; set; } = 0;
         
-        [MaxLength(100)]
         public string? Ubicacion { get; set; }
         
         public DateTime FechaUltimaActualizacion { get; set; }

@@ -38,7 +38,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Genera un reporte de movimientos por producto
         /// </summary>
-        Task<object> GenerarReporteMovimientosPorProductoAsync(Guid productoId);
+        Task<object> GenerarReporteMovimientosPorProductoAsync(int productoId);
 
         #endregion
 

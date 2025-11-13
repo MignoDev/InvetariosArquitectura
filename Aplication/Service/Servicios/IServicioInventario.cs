@@ -21,18 +21,18 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Actualiza la información de un producto
         /// </summary>
-        Task<Producto> ActualizarProductoAsync(Guid productoId, string nombre, 
+        Task<Producto> ActualizarProductoAsync(int productoId, string nombre, 
             string descripcion, decimal precio);
 
         /// <summary>
         /// Actualiza los límites de stock de un producto
         /// </summary>
-        Task<Producto> ActualizarLimitesStockAsync(Guid productoId, int stockMinimo, int stockMaximo);
+        Task<Producto> ActualizarLimitesStockAsync(int productoId, int stockMinimo, int stockMaximo);
 
         /// <summary>
         /// Obtiene un producto por su ID
         /// </summary>
-        Task<Producto> ObtenerProductoAsync(Guid productoId);
+        Task<Producto> ObtenerProductoAsync(int productoId);
 
         /// <summary>
         /// Obtiene un producto por su código
@@ -56,22 +56,22 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Ajusta el stock de un producto
         /// </summary>
-        Task<Stock> AjustarStockAsync(Guid productoId, int nuevaCantidad);
+        Task<Stock> AjustarStockAsync(int productoId, int nuevaCantidad);
 
         /// <summary>
         /// Agrega stock a un producto
         /// </summary>
-        Task<Stock> AgregarStockAsync(Guid productoId, int cantidad);
+        Task<Stock> AgregarStockAsync(int productoId, int cantidad);
 
         /// <summary>
         /// Reduce el stock de un producto
         /// </summary>
-        Task<Stock> ReducirStockAsync(Guid productoId, int cantidad);
+        Task<Stock> ReducirStockAsync(int productoId, int cantidad);
 
         /// <summary>
         /// Obtiene el stock de un producto
         /// </summary>
-        Task<Stock> ObtenerStockAsync(Guid productoId);
+        Task<Stock> ObtenerStockAsync(int productoId);
 
         /// <summary>
         /// Obtiene productos con stock bajo
@@ -90,19 +90,19 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Registra una entrada de productos
         /// </summary>
-        Task<EntradaProducto> RegistrarEntradaAsync(Guid productoId, Guid proveedorId, 
+        Task<EntradaProducto> RegistrarEntradaAsync(int productoId, int proveedorId, 
             int cantidad, decimal precioUnitario, string numeroFactura = null, string observaciones = null);
 
         /// <summary>
         /// Registra una salida de productos
         /// </summary>
-        Task<SalidaProducto> RegistrarSalidaAsync(Guid productoId, int cantidad, 
+        Task<SalidaProducto> RegistrarSalidaAsync(int productoId, int cantidad, 
             string motivo, string responsable = null, string observaciones = null);
 
         /// <summary>
         /// Obtiene el historial de movimientos de un producto
         /// </summary>
-        Task<IEnumerable<object>> ObtenerHistorialMovimientosAsync(Guid productoId);
+        Task<IEnumerable<object>> ObtenerHistorialMovimientosAsync(int productoId);
 
         #endregion
     }

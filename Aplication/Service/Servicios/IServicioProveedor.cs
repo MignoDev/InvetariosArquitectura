@@ -20,24 +20,24 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Actualiza la información de un proveedor
         /// </summary>
-        Task<Proveedor> ActualizarProveedorAsync(Guid proveedorId, string nombre, 
+        Task<Proveedor> ActualizarProveedorAsync(int proveedorId, string nombre, 
             string contacto, string email, string telefono, string direccion);
 
         /// <summary>
         /// Actualiza solo la información de contacto de un proveedor
         /// </summary>
-        Task<Proveedor> ActualizarContactoAsync(Guid proveedorId, string contacto, 
+        Task<Proveedor> ActualizarContactoAsync(int proveedorId, string contacto, 
             string email, string telefono);
 
         /// <summary>
         /// Actualiza solo la dirección de un proveedor
         /// </summary>
-        Task<Proveedor> ActualizarDireccionAsync(Guid proveedorId, string direccion);
+        Task<Proveedor> ActualizarDireccionAsync(int proveedorId, string direccion);
 
         /// <summary>
         /// Obtiene un proveedor por su ID
         /// </summary>
-        Task<Proveedor> ObtenerProveedorAsync(Guid proveedorId);
+        Task<Proveedor> ObtenerProveedorAsync(int proveedorId);
 
         /// <summary>
         /// Obtiene un proveedor por su código
@@ -72,27 +72,27 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Activa un proveedor
         /// </summary>
-        Task<Proveedor> ActivarProveedorAsync(Guid proveedorId);
+        Task<Proveedor> ActivarProveedorAsync(int proveedorId);
 
         /// <summary>
         /// Desactiva un proveedor
         /// </summary>
-        Task<Proveedor> DesactivarProveedorAsync(Guid proveedorId);
+        Task<Proveedor> DesactivarProveedorAsync(int proveedorId);
 
         /// <summary>
         /// Elimina un proveedor
         /// </summary>
-        Task EliminarProveedorAsync(Guid proveedorId);
+        Task EliminarProveedorAsync(int proveedorId);
 
         /// <summary>
         /// Obtiene estadísticas de un proveedor
         /// </summary>
-        Task<object> ObtenerEstadisticasProveedorAsync(Guid proveedorId);
+        Task<object> ObtenerEstadisticasProveedorAsync(int proveedorId);
 
         /// <summary>
         /// Valida la información de contacto de un proveedor
         /// </summary>
-        Task<object> ValidarInformacionContactoAsync(Guid proveedorId);
+        Task<object> ValidarInformacionContactoAsync(int proveedorId);
 
         /// <summary>
         /// Obtiene el conteo total de proveedores

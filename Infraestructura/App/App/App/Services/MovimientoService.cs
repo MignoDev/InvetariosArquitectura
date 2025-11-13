@@ -29,7 +29,7 @@ namespace AppBlazor.Services
         /// <summary>
         /// Obtiene el historial de movimientos de un producto
         /// </summary>
-        public async Task<List<object>> ObtenerHistorialMovimientosAsync(Guid productoId)
+        public async Task<List<object>> ObtenerHistorialMovimientosAsync(int productoId)
         {
             return await GetListAsync<object>($"api/inventario/productos/{productoId}/movimientos");
         }

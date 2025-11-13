@@ -7,22 +7,23 @@
         </RadzenFormField>
         @if(IsNew)
         {            
-            <RadzenFormField Text="Código" class="w-100">
-                <RadzenTextBox @bind-Value="ProductoParam.Codigo" />
+
+            <RadzenFormField Text="Precio compra" class="w-100">
+                <RadzenNumeric @bind-Value="ProductoParam.PrecioCompra" />
             </RadzenFormField>
 
-            <RadzenFormField Text="Precio" class="w-100">
-                <RadzenNumeric @bind-Value="ProductoParam.Precio" />
+            <RadzenFormField Text="Precio venta" class="w-100">
+                <RadzenNumeric @bind-Value="ProductoParam.PrecioVenta" />
             </RadzenFormField>
 
             <RadzenFormField Text="Categoría" class="w-100">
-                <RadzenDropDown Data="Categorias" @bind-Value="ProductoParam.CategoriaId" ValueProperty="@nameof(Categoria.Id)"
+                <RadzenDropDown Data="Categorias" @bind-Value="ProductoParam.IdCategoria" ValueProperty="@nameof(Categoria.IdCategoria)"
                             TextProperty="@nameof(Categoria.Nombre)"/>
             </RadzenFormField>    
         }
 
         <RadzenFormField Text="Cantidad en stock" class="w-100">
-            <RadzenNumeric @bind-Value="ProductoParam.StockInicial"/>
+            <RadzenNumeric @bind-Value="ProductoParam.StockActual"/>
         </RadzenFormField>
 
         <div class="d-flex gap-2 justify-content-center w-100">
@@ -43,7 +44,7 @@
 
     [Parameter] public List<Categoria> Categorias { get; set; }
 
-    [Parameter] public ProductoConStock ProductoParam { get; set; }
+    [Parameter] public Producto ProductoParam { get; set; }
 
     private bool IsNew = false;
 
@@ -52,7 +53,7 @@
         if (ProductoParam == null)
         {
             IsNew = true;
-            ProductoParam = new ProductoConStock();
+            ProductoParam = new Producto();
         }
     }
 
@@ -61,8 +62,7 @@
 
         try
         {
-            if (IsNew) await ProductoService.CrearAsync(ProductoParam);
-            else await ProductoService.AjustarStockAsync(ProductoParam.Id, ProductoParam.StockInicial ?? 0);
+            await ProductoService.CrearAsync(ProductoParam);          
 
             DialogService.Close(true);
         }

@@ -1,0 +1,124 @@
+﻿@page "/Inventario"
+@page "/"
+
+<h3>Gestión de inventarios</h3>
+
+<RadzenTabs TabPosition="TabPosition.Top">
+    <Tabs>
+
+        <RadzenTabsItem Text="Productos">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">Productos</h3>
+                    <div class="d-flex w-100 justify-content-end gap-2">
+                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add" Text="Registrar producto" Click="AbrirDialogoProductoAsync" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Success" Click="CargarProductos" disabled="@cargando">
+                            @if (cargando)
+                            {
+                                <span class="spinner-border spinner-border-sm" role="status"></span>
+                            }
+                            else
+                            {
+                                <i class="fas fa-sync"></i>
+                            }
+                            Actualizar
+                        </RadzenButton>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (productos == null)
+                    {
+                        <div class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                        </div>
+                    }
+                    else if (productos.Any())
+                    {
+                        <RadzenDataGrid TItem="Producto" Data="productos">
+                            <Columns>
+                                <RadzenDataGridColumn Property="@nameof(Producto.Nombre)" Title="Nombre"/>
+                                <RadzenDataGridColumn Property="@nameof(Producto.Descripcion)" Title="Descripción"/>   
+                                <RadzenDataGridColumn Property="@nameof(Producto.PrecioCompra)" Title="Precio compra"/>
+                                <RadzenDataGridColumn Property="@nameof(Producto.PrecioVenta)" Title="Precio venta"/>
+                                <RadzenDataGridColumn Property="@nameof(Producto.Categoria)" Title="Categoria"/>
+                                <RadzenDataGridColumn Property="@nameof(Producto.StockActual)" Title="Stock"/>
+                                <RadzenDataGridColumn Property="@nameof(Producto.Activo)" Title="Activo">
+                                    <Template>
+                                        <span class="badge @((context.Activo) ? "bg-success" : "bg-danger")">
+                                            @((context.Activo) ? "Sí" : "No")
+                                        </span>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                        
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> No hay productos registrados.
+                        </div>
+                    }
+                </div>
+            </div>
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="Categoria de productos">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">Categorías</h3>
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add" Text="Registrar Categorías" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Success" Click="CargarCategorias" disabled="@cargando">
+                        @if (cargando)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status"></span>
+                        }
+                        else
+                        {
+                            <i class="fas fa-sync"></i>
+                        }
+                        Actualizar
+                    </RadzenButton>
+                </div>
+                <div class="card-body">
+                    @if (categorias == null)
+                    {
+                        <div class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                        </div>
+                    }
+                    else if (categorias.Any())
+                    {
+                        <RadzenDataGrid TItem="Categoria" Data="categorias">
+                            <Columns>
+                                <RadzenDataGridColumn Property="@nameof(Categoria.Nombre)" Title="Nombre" />
+                                <RadzenDataGridColumn Property="@nameof(Categoria.Descripcion)" Title="Descripcion" />
+                                <RadzenDataGridColumn Property="@nameof(Categoria.Activo)" Title="Activo">
+                                    <Template>
+                                        <span class="badge @((context.Activo) ? "bg-success" : "bg-danger")">
+                                            @((context.Activo) ? "Sí" : "No")
+                                        </span>
+                                    </Template>
+                                </RadzenDataGridColumn>                           
+                            </Columns>
+                        </RadzenDataGrid>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> No hay categorías registradas.
+                        </div>
+                    }
+                </div>
+            </div>
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="Proveedores">
+
+        </RadzenTabsItem>
+    </Tabs>
+</RadzenTabs>

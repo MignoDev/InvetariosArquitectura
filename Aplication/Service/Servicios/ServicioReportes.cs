@@ -223,7 +223,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Genera un reporte de movimientos por producto
         /// </summary>
-        public async Task<object> GenerarReporteMovimientosPorProductoAsync(Guid productoId)
+        public async Task<object> GenerarReporteMovimientosPorProductoAsync(int productoId)
         {
             var producto = await _repositorioProducto.ObtenerPorIdAsync(productoId);
 

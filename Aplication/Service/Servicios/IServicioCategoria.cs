@@ -19,12 +19,12 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Actualiza la información de una categoría
         /// </summary>
-        Task<Categoria> ActualizarCategoriaAsync(Guid categoriaId, string nombre, string descripcion);
+        Task<Categoria> ActualizarCategoriaAsync(int categoriaId, string nombre, string descripcion);
 
         /// <summary>
         /// Obtiene una categoría por su ID
         /// </summary>
-        Task<Categoria> ObtenerCategoriaAsync(Guid categoriaId);
+        Task<Categoria> ObtenerCategoriaAsync(int categoriaId);
 
         /// <summary>
         /// Obtiene una categoría por su nombre
@@ -49,22 +49,22 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Activa una categoría
         /// </summary>
-        Task<Categoria> ActivarCategoriaAsync(Guid categoriaId);
+        Task<Categoria> ActivarCategoriaAsync(int categoriaId);
 
         /// <summary>
         /// Desactiva una categoría
         /// </summary>
-        Task<Categoria> DesactivarCategoriaAsync(Guid categoriaId);
+        Task<Categoria> DesactivarCategoriaAsync(int categoriaId);
 
         /// <summary>
         /// Elimina una categoría
         /// </summary>
-        Task EliminarCategoriaAsync(Guid categoriaId);
+        Task EliminarCategoriaAsync(int categoriaId);
 
         /// <summary>
         /// Obtiene estadísticas de una categoría
         /// </summary>
-        Task<object> ObtenerEstadisticasCategoriaAsync(Guid categoriaId);
+        Task<object> ObtenerEstadisticasCategoriaAsync(int categoriaId);
 
         /// <summary>
         /// Obtiene el conteo total de categorías

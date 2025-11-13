@@ -7,13 +7,10 @@ namespace ProyectoInventario.Domain.Models
     /// </summary>
     public class Categoria
     {
-        public Guid Id { get; set; }
+        public int IdCategoria { get; set; }
         
-        [Required]
-        [MaxLength(100)]
-        public string Nombre { get; set; } = string.Empty;
+        public string? Nombre { get; set; }
         
-        [MaxLength(300)]
         public string? Descripcion { get; set; }
         
         public bool Activo { get; set; } = true;

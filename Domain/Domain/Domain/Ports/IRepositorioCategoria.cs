@@ -12,21 +12,21 @@ namespace ProyectoInventario.Domain.Ports
     public interface IRepositorioCategoria
     {
         // Operaciones CRUD básicas
-        Task<Categoria> ObtenerPorIdAsync(Guid id);
+        Task<Categoria> ObtenerPorIdAsync(int id);
         Task<Categoria> ObtenerPorNombreAsync(string nombre);
         Task<IEnumerable<Categoria>> ObtenerTodasAsync();
         Task<IEnumerable<Categoria>> ObtenerActivasAsync();
         Task<Categoria> CrearAsync(Categoria categoria);
         Task<Categoria> ActualizarAsync(Categoria categoria);
-        Task EliminarAsync(Guid id);
+        Task EliminarAsync(int id);
 
         // Operaciones de búsqueda
         Task<IEnumerable<Categoria>> BuscarPorNombreAsync(string nombre);
 
         // Operaciones de validación
         Task<bool> ExisteNombreAsync(string nombre);
-        Task<bool> ExisteNombreAsync(string nombre, Guid idExcluir);
-        Task<bool> TieneProductosAsync(Guid categoriaId);
+        Task<bool> ExisteNombreAsync(string nombre, int idExcluir);
+        Task<bool> TieneProductosAsync(int categoriaId);
 
         // Operaciones de conteo
         Task<int> ContarTotalAsync();

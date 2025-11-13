@@ -218,8 +218,8 @@ AS
 BEGIN
     SET NOCOUNT ON;
     
-    INSERT INTO Categorias (Nombre, Descripcion)
-    VALUES (@Nombre, @Descripcion);
+    INSERT INTO Categorias (Nombre, Descripcion, Activo, FechaCreacion)
+    VALUES (@Nombre, @Descripcion, 1, GETDATE());
     
     SELECT SCOPE_IDENTITY() AS Id;
 END
@@ -335,6 +335,30 @@ BEGIN
         WHERE ProductoId = @ProductoId;
     END
 END
+
+GO 
+-- Obtener stock
+CREATE OR ALTER PROCEDURE sp_ObtenerStock
+    
+    @ProductoId UNIQUEIDENTIFIER,
+    @Ubicacion VARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT 
+        S.Id AS 'StockID',
+        P.Nombre AS 'ProductoNombre', 
+        S.Cantidad AS 'Cantidad',
+        S.Ubicacion AS 'Ubicacion',
+        S.FechaUltimaActualizacion AS 'FechaActualizacion'
+    FROM Stock S
+    INNER JOIN Productos P ON P.Id = S.ProductoId
+    WHERE (@ProductoId IS NULL OR S.ProductoId = @ProductoId)
+    AND (@Ubicacion IS NULL OR S.Ubicacion = @Ubicacion)
+
+END
+
 GO
 
 -- =============================================

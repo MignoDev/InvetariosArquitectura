@@ -1,0 +1,72 @@
+﻿@page "/ventas"
+
+@inject IFacturaService FacturaService
+@inject IDetalleFactura DetalleFacturaService
+
+<h3>GestionVentas</h3>
+
+<div class="d-flex flex-column">
+    <div class="d-flex flex-row w-100">
+        <RadzenButton Text="Iniciar venta"/>        
+    </div>
+    <div>
+        <RadzenDataGrid TItem="Factura" Data="Facturas" ExpandMode="DataGridExpandMode.Single" RowClick="OnRowClick">
+            <Columns>
+                <RadzenDataGridColumn Property="@nameof(Factura.IdFactura)" Title="Id factura"/>
+                <RadzenDataGridColumn Property="@nameof(Factura.FechaFactura)" Title="Fecha factura" />
+                <RadzenDataGridColumn Property="@nameof(Factura.Cliente)" Title="Cliente" />
+                <RadzenDataGridColumn Property="@nameof(Factura.Empleado)" Title="Empleado" />
+                <RadzenDataGridColumn Property="@nameof(Factura.Estado)" Title="Estado" />
+                <RadzenDataGridColumn Property="@nameof(Factura.Total)" Title="Total"/>                
+            </Columns>
+            <Template>
+                <RadzenDataGrid TItem="DetalleFacturas" Data="DetallesFactura[context.IdFactura ?? 0]">
+                    <Columns>
+                        <RadzenDataGridColumn Property="@nameof(DetalleFacturas.IdFactura)" Title="Id factura"/>
+                        <RadzenDataGridColumn Property="@nameof(DetalleFacturas.NombreProducto)" Title="Nombre producto"/>
+                        <RadzenDataGridColumn Property="@nameof(DetalleFacturas.Cantidad)" Title="cantidad"/>
+                        <RadzenDataGridColumn Property="@nameof(DetalleFacturas.PrecioUnitario)" Title="Precio unitario"/>
+                        <RadzenDataGridColumn Property="@nameof(DetalleFacturas.Subtotal)" Title="Subtotal"/>                        
+                    </Columns>
+                </RadzenDataGrid>
+            </Template>
+        </RadzenDataGrid>
+    </div>
+</div>
+
+@code {
+    private List<Factura> Facturas { get; set; } = new();
+    private Dictionary<int, List<DetalleFacturas>> DetallesFactura { get; set; } = new();
+    private RadzenDataGrid<Factura> _Grid { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Facturas = await FacturaService.ObtenerTodosAsync();
+        await ObtenerDetallesFacturas();
+    }
+
+    private async Task ObtenerDetallesFacturas()
+    {
+        var listaDetalleFacturas = await DetalleFacturaService.GetDetalleFacturas();
+
+        if (Facturas == null) return;
+
+        foreach (var factura in Facturas)
+        {
+            DetallesFactura.Add(factura.IdFactura ?? 0, listaDetalleFacturas.Where(d => d.IdFactura == factura.IdFactura).ToList());
+        }
+    }
+
+
+    void OnRowClick(DataGridRowMouseEventArgs<Factura> args)
+    {
+        if (_Grid.IsRowExpanded(args.Data))
+        {
+            _Grid.CollapseAll();
+        }
+        else
+        {
+            _Grid.ExpandRow(args.Data);
+        }
+    }
+}

@@ -12,12 +12,12 @@ namespace ProyectoInventario.Domain.Ports
     public interface IRepositorioStock
     {
         // Operaciones CRUD básicas
-        Task<Stock> ObtenerPorIdAsync(Guid id);
-        Task<Stock> ObtenerPorProductoIdAsync(Guid productoId);
+        Task<Stock> ObtenerPorIdAsync(int id);
+        Task<Stock> ObtenerPorProductoIdAsync(int productoId);
         Task<IEnumerable<Stock>> ObtenerTodosAsync();
         Task<Stock> CrearAsync(Stock stock);
         Task<Stock> ActualizarAsync(Stock stock);
-        Task EliminarAsync(Guid id);
+        Task EliminarAsync(int id);
 
         // Operaciones de búsqueda
         Task<IEnumerable<Stock>> BuscarPorUbicacionAsync(string ubicacion);
@@ -26,13 +26,13 @@ namespace ProyectoInventario.Domain.Ports
         Task<IEnumerable<Stock>> BuscarAgotadosAsync();
 
         // Operaciones de stock
-        Task<Stock> AjustarStockAsync(Guid productoId, int nuevaCantidad);
-        Task<Stock> AgregarStockAsync(Guid productoId, int cantidad);
-        Task<Stock> ReducirStockAsync(Guid productoId, int cantidad);
+        Task<Stock> AjustarStockAsync(int productoId, int nuevaCantidad);
+        Task<Stock> AgregarStockAsync(int productoId, int cantidad);
+        Task<Stock> ReducirStockAsync(int productoId, int cantidad);
 
         // Operaciones de validación
-        Task<bool> TieneStockDisponibleAsync(Guid productoId, int cantidadRequerida);
-        Task<int> ObtenerCantidadDisponibleAsync(Guid productoId);
+        Task<bool> TieneStockDisponibleAsync(int productoId, int cantidadRequerida);
+        Task<int> ObtenerCantidadDisponibleAsync(int productoId);
 
         // Operaciones de conteo
         Task<int> ContarConStockBajoAsync();

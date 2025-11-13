@@ -7,7 +7,7 @@ namespace ProyectoInventario.Domain.Models
     /// </summary>
     public class ConfiguracionServicio
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         
         [Required]
         [MaxLength(100)]

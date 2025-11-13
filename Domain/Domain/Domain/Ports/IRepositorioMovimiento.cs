@@ -12,27 +12,27 @@ namespace ProyectoInventario.Domain.Ports
     public interface IRepositorioMovimiento
     {
         // Operaciones de Entradas
-        Task<EntradaProducto> ObtenerEntradaPorIdAsync(Guid id);
+        Task<EntradaProducto> ObtenerEntradaPorIdAsync(int id);
         Task<IEnumerable<EntradaProducto>> ObtenerEntradasAsync();
-        Task<IEnumerable<EntradaProducto>> ObtenerEntradasPorProductoAsync(Guid productoId);
-        Task<IEnumerable<EntradaProducto>> ObtenerEntradasPorProveedorAsync(Guid proveedorId);
+        Task<IEnumerable<EntradaProducto>> ObtenerEntradasPorProductoAsync(int productoId);
+        Task<IEnumerable<EntradaProducto>> ObtenerEntradasPorProveedorAsync(int proveedorId);
         Task<IEnumerable<EntradaProducto>> ObtenerEntradasPorFechaAsync(DateTime fechaInicio, DateTime fechaFin);
         Task<EntradaProducto> CrearEntradaAsync(EntradaProducto entrada);
         Task<EntradaProducto> ActualizarEntradaAsync(EntradaProducto entrada);
-        Task EliminarEntradaAsync(Guid id);
+        Task EliminarEntradaAsync(int id);
 
         // Operaciones de Salidas
-        Task<SalidaProducto> ObtenerSalidaPorIdAsync(Guid id);
+        Task<SalidaProducto> ObtenerSalidaPorIdAsync(int id);
         Task<IEnumerable<SalidaProducto>> ObtenerSalidasAsync();
-        Task<IEnumerable<SalidaProducto>> ObtenerSalidasPorProductoAsync(Guid productoId);
+        Task<IEnumerable<SalidaProducto>> ObtenerSalidasPorProductoAsync(int productoId);
         Task<IEnumerable<SalidaProducto>> ObtenerSalidasPorFechaAsync(DateTime fechaInicio, DateTime fechaFin);
         Task<IEnumerable<SalidaProducto>> ObtenerSalidasPorMotivoAsync(string motivo);
         Task<SalidaProducto> CrearSalidaAsync(SalidaProducto salida);
         Task<SalidaProducto> ActualizarSalidaAsync(SalidaProducto salida);
-        Task EliminarSalidaAsync(Guid id);
+        Task EliminarSalidaAsync(int id);
 
         // Operaciones de búsqueda combinadas
-        Task<IEnumerable<object>> ObtenerMovimientosPorProductoAsync(Guid productoId);
+        Task<IEnumerable<object>> ObtenerMovimientosPorProductoAsync(int productoId);
         Task<IEnumerable<object>> ObtenerMovimientosPorFechaAsync(DateTime fechaInicio, DateTime fechaFin);
         Task<IEnumerable<object>> ObtenerMovimientosRecientesAsync(int dias = 7);
 
@@ -45,6 +45,6 @@ namespace ProyectoInventario.Domain.Ports
 
         // Operaciones de validación
         Task<bool> ExisteEntradaConFacturaAsync(string numeroFactura);
-        Task<bool> ExisteEntradaConFacturaAsync(string numeroFactura, Guid idExcluir);
+        Task<bool> ExisteEntradaConFacturaAsync(string numeroFactura, int idExcluir);
     }
 }

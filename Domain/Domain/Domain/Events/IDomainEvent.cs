@@ -10,7 +10,7 @@ namespace ProyectoInventario.Domain.Events
         /// <summary>
         /// Identificador único del evento
         /// </summary>
-        Guid Id { get; }
+        int Id { get; }
 
         /// <summary>
         /// Fecha y hora cuando ocurrió el evento

@@ -50,9 +50,9 @@ namespace ProyectoInventario.Application.Service.Servicios
             }
 
             // Validar categoría si se proporciona
-            if (producto.CategoriaId.HasValue)
+            if (producto.IdCategoria.HasValue)
             {
-                var categoria = await _repositorioCategoria.ObtenerPorIdAsync(producto.CategoriaId.Value);
+                var categoria = await _repositorioCategoria.ObtenerPorIdAsync(producto.IdCategoria.Value);
                 if (categoria == null)
                 {
                     throw new ArgumentException("La categoría especificada no existe");
@@ -68,7 +68,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Actualiza la información de un producto
         /// </summary>
-        public async Task<Producto> ActualizarProductoAsync(Guid productoId, string nombre, 
+        public async Task<Producto> ActualizarProductoAsync(int productoId, string nombre, 
             string descripcion, decimal precio)
         {
             var producto = await _repositorioProducto.ObtenerPorIdAsync(productoId);
@@ -90,7 +90,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Actualiza los límites de stock de un producto
         /// </summary>
-        public async Task<Producto> ActualizarLimitesStockAsync(Guid productoId, int stockMinimo, int stockMaximo)
+        public async Task<Producto> ActualizarLimitesStockAsync(int productoId, int stockMinimo, int stockMaximo)
         {
             var producto = await _repositorioProducto.ObtenerPorIdAsync(productoId);
             if (producto == null)
@@ -108,7 +108,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Obtiene un producto por su ID
         /// </summary>
-        public async Task<Producto> ObtenerProductoAsync(Guid productoId)
+        public async Task<Producto> ObtenerProductoAsync(int productoId)
         {
             return await _repositorioProducto.ObtenerPorIdAsync(productoId);
         }
@@ -144,7 +144,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Ajusta el stock de un producto
         /// </summary>
-        public async Task<Stock> AjustarStockAsync(Guid productoId, int nuevaCantidad)
+        public async Task<Stock> AjustarStockAsync(int productoId, int nuevaCantidad)
         {
             var producto = await _repositorioProducto.ObtenerPorIdAsync(productoId);
             if (producto == null)
@@ -167,7 +167,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Agrega stock a un producto
         /// </summary>
-        public async Task<Stock> AgregarStockAsync(Guid productoId, int cantidad)
+        public async Task<Stock> AgregarStockAsync(int productoId, int cantidad)
         {
             var producto = await _repositorioProducto.ObtenerPorIdAsync(productoId);
             if (producto == null)
@@ -217,7 +217,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Reduce el stock de un producto
         /// </summary>
-        public async Task<Stock> ReducirStockAsync(Guid productoId, int cantidad)
+        public async Task<Stock> ReducirStockAsync(int productoId, int cantidad)
         {
             var producto = await _repositorioProducto.ObtenerPorIdAsync(productoId);
             if (producto == null)
@@ -283,7 +283,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Obtiene el stock de un producto
         /// </summary>
-        public async Task<Stock> ObtenerStockAsync(Guid productoId)
+        public async Task<Stock> ObtenerStockAsync(int productoId)
         {
             return await _repositorioStock.ObtenerPorProductoIdAsync(productoId);
         }
@@ -311,7 +311,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Registra una entrada de productos
         /// </summary>
-        public async Task<EntradaProducto> RegistrarEntradaAsync(Guid productoId, Guid proveedorId, 
+        public async Task<EntradaProducto> RegistrarEntradaAsync(int productoId, int proveedorId, 
             int cantidad, decimal precioUnitario, string numeroFactura = null, string observaciones = null)
         {
             // Validar producto
@@ -338,7 +338,6 @@ namespace ProyectoInventario.Application.Service.Servicios
             // Crear entrada
             var entrada = new EntradaProducto
             {
-                Id = Guid.NewGuid(),
                 ProductoId = productoId,
                 ProveedorId = proveedorId,
                 Cantidad = cantidad,
@@ -360,7 +359,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Registra una salida de productos
         /// </summary>
-        public async Task<SalidaProducto> RegistrarSalidaAsync(Guid productoId, int cantidad, 
+        public async Task<SalidaProducto> RegistrarSalidaAsync(int productoId, int cantidad, 
             string motivo, string responsable = null, string observaciones = null)
         {
             // Validar producto
@@ -380,7 +379,6 @@ namespace ProyectoInventario.Application.Service.Servicios
             // Crear salida
             var salida = new SalidaProducto
             {
-                Id = Guid.NewGuid(),
                 ProductoId = productoId,
                 Cantidad = cantidad,
                 Motivo = motivo,
@@ -401,7 +399,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Obtiene el historial de movimientos de un producto
         /// </summary>
-        public async Task<IEnumerable<object>> ObtenerHistorialMovimientosAsync(Guid productoId)
+        public async Task<IEnumerable<object>> ObtenerHistorialMovimientosAsync(int productoId)
         {
             return await _repositorioMovimiento.ObtenerMovimientosPorProductoAsync(productoId);
         }

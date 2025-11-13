@@ -13,7 +13,7 @@ namespace ProyectoInventario.Domain.Models
         public string? CategoriaDescripcion { get; set; }
         
         // Información del stock
-        public Guid StockId { get; set; }
+        public int StockId { get; set; }
         public int? StockActual { get; set; }
         public int? StockInicial { get; set; }
         public string? UbicacionStock { get; set; }

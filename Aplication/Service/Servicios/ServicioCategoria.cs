@@ -43,7 +43,6 @@ namespace ProyectoInventario.Application.Service.Servicios
             // Crear categoría
             var categoria = new Categoria
             {
-                Id = Guid.NewGuid(),
                 Nombre = nombre,
                 Descripcion = descripcion,
                 Activo = true,
@@ -57,7 +56,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Actualiza la información de una categoría
         /// </summary>
-        public async Task<Categoria> ActualizarCategoriaAsync(Guid categoriaId, string nombre, string descripcion)
+        public async Task<Categoria> ActualizarCategoriaAsync(int categoriaId, string nombre, string descripcion)
         {
             // Obtener categoría existente
             var categoria = await _repositorioCategoria.ObtenerPorIdAsync(categoriaId);
@@ -89,7 +88,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Obtiene una categoría por su ID
         /// </summary>
-        public async Task<Categoria> ObtenerCategoriaAsync(Guid categoriaId)
+        public async Task<Categoria> ObtenerCategoriaAsync(int categoriaId)
         {
             return await _repositorioCategoria.ObtenerPorIdAsync(categoriaId);
         }
@@ -129,7 +128,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Activa una categoría
         /// </summary>
-        public async Task<Categoria> ActivarCategoriaAsync(Guid categoriaId)
+        public async Task<Categoria> ActivarCategoriaAsync(int categoriaId)
         {
             var categoria = await _repositorioCategoria.ObtenerPorIdAsync(categoriaId);
             if (categoria == null)
@@ -144,7 +143,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Desactiva una categoría
         /// </summary>
-        public async Task<Categoria> DesactivarCategoriaAsync(Guid categoriaId)
+        public async Task<Categoria> DesactivarCategoriaAsync(int categoriaId)
         {
             var categoria = await _repositorioCategoria.ObtenerPorIdAsync(categoriaId);
             if (categoria == null)
@@ -166,7 +165,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Elimina una categoría
         /// </summary>
-        public async Task EliminarCategoriaAsync(Guid categoriaId)
+        public async Task EliminarCategoriaAsync(int categoriaId)
         {
             var categoria = await _repositorioCategoria.ObtenerPorIdAsync(categoriaId);
             if (categoria == null)
@@ -187,7 +186,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Obtiene estadísticas de una categoría
         /// </summary>
-        public async Task<object> ObtenerEstadisticasCategoriaAsync(Guid categoriaId)
+        public async Task<object> ObtenerEstadisticasCategoriaAsync(int categoriaId)
         {
             var categoria = await _repositorioCategoria.ObtenerPorIdAsync(categoriaId);
             if (categoria == null)

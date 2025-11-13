@@ -7,14 +7,14 @@ namespace ProyectoInventario.Domain.Events
     /// </summary>
     public class StockActualizadoEvent : BaseDomainEvent
     {
-        public Guid ProductoId { get; set; }
+        public int ProductoId { get; set; }
         public string NombreProducto { get; set; }
         public int CantidadAnterior { get; set; }
         public int CantidadNueva { get; set; }
         public string TipoMovimiento { get; set; }
         public string Ubicacion { get; set; }
 
-        public StockActualizadoEvent(Guid productoId, string nombreProducto, 
+        public StockActualizadoEvent(int productoId, string nombreProducto, 
             int cantidadAnterior, int cantidadNueva, string tipoMovimiento, string ubicacion)
         {
             ProductoId = productoId;
@@ -31,13 +31,13 @@ namespace ProyectoInventario.Domain.Events
     /// </summary>
     public class StockBajoEvent : BaseDomainEvent
     {
-        public Guid ProductoId { get; set; }
+        public int ProductoId { get; set; }
         public string NombreProducto { get; set; }
         public int CantidadActual { get; set; }
         public int StockMinimo { get; set; }
         public string Ubicacion { get; set; }
 
-        public StockBajoEvent(Guid productoId, string nombreProducto, 
+        public StockBajoEvent(int productoId, string nombreProducto, 
             int cantidadActual, int stockMinimo, string ubicacion)
         {
             ProductoId = productoId;
@@ -53,12 +53,12 @@ namespace ProyectoInventario.Domain.Events
     /// </summary>
     public class ProductoAgotadoEvent : BaseDomainEvent
     {
-        public Guid ProductoId { get; set; }
+        public int ProductoId { get; set; }
         public string NombreProducto { get; set; }
         public string Codigo { get; set; }
         public string Ubicacion { get; set; }
 
-        public ProductoAgotadoEvent(Guid productoId, string nombreProducto, 
+        public ProductoAgotadoEvent(int productoId, string nombreProducto, 
             string codigo, string ubicacion)
         {
             ProductoId = productoId;
@@ -73,17 +73,17 @@ namespace ProyectoInventario.Domain.Events
     /// </summary>
     public class EntradaProductoRegistradaEvent : BaseDomainEvent
     {
-        public Guid EntradaId { get; set; }
-        public Guid ProductoId { get; set; }
+        public int EntradaId { get; set; }
+        public int ProductoId { get; set; }
         public string NombreProducto { get; set; }
-        public Guid ProveedorId { get; set; }
+        public int ProveedorId { get; set; }
         public string NombreProveedor { get; set; }
         public int Cantidad { get; set; }
         public decimal PrecioUnitario { get; set; }
         public string NumeroFactura { get; set; }
 
-        public EntradaProductoRegistradaEvent(Guid entradaId, Guid productoId, 
-            string nombreProducto, Guid proveedorId, string nombreProveedor, 
+        public EntradaProductoRegistradaEvent(int entradaId, int productoId, 
+            string nombreProducto, int proveedorId, string nombreProveedor, 
             int cantidad, decimal precioUnitario, string numeroFactura)
         {
             EntradaId = entradaId;
@@ -102,14 +102,14 @@ namespace ProyectoInventario.Domain.Events
     /// </summary>
     public class SalidaProductoRegistradaEvent : BaseDomainEvent
     {
-        public Guid SalidaId { get; set; }
-        public Guid ProductoId { get; set; }
+        public int SalidaId { get; set; }
+        public int ProductoId { get; set; }
         public string NombreProducto { get; set; }
         public int Cantidad { get; set; }
         public string Motivo { get; set; }
         public string Responsable { get; set; }
 
-        public SalidaProductoRegistradaEvent(Guid salidaId, Guid productoId, 
+        public SalidaProductoRegistradaEvent(int salidaId, int productoId, 
             string nombreProducto, int cantidad, string motivo, string responsable)
         {
             SalidaId = salidaId;

@@ -23,6 +23,11 @@ builder.Services.AddHttpClient("ApiClient", client =>
     client.Timeout = TimeSpan.FromSeconds(30);
 });
 
+builder.Services.AddScoped<ICateogriaService, CategoriaService>();
+builder.Services.AddScoped<IProductoService, ProductoService>();
+builder.Services.AddScoped<IFacturaService, FacturaService>();
+builder.Services.AddScoped<IDetalleFactura, DetalleFacturaService>();
+
 // Registrar servicios de la aplicación
 builder.Services.AddAppServices();
 builder.Services.AddRadzenComponents();

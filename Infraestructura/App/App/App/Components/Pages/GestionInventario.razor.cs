@@ -6,18 +6,18 @@ using Radzen;
 
 namespace AppBlazor.Components.Pages
 {
-    public partial class InventarioPage : ComponentBase
+    public partial class GestionInventario : ComponentBase
     {
+
         [Inject] CategoriaService CategoriaService { get; set; }
-        [Inject] ProductoService ProductoService { get; set;}
-        [Inject] ProveedorService ProveedorService { get; set;}
+        [Inject] ProductoService ProductoService { get; set; }
+        [Inject] ProveedorService ProveedorService { get; set; }
         [Inject] private DialogService DialogService { get; set; }
 
-        private List<ProductoConStock>? productos;
+        private List<Producto>? productos;
         private List<Categoria>? categorias;
         private List<Proveedor>? proveedores;
         private bool cargando = false;
-
         protected override async Task OnInitializedAsync()
         {
             await CargarDatosIniciales();
@@ -25,12 +25,19 @@ namespace AppBlazor.Components.Pages
 
         private async Task AbrirDialogoProductoAsync()
         {
-            
+
             var parameteres = new Dictionary<string, object>()
             {
-                { "Categorias", categorias }                
+                { "Categorias", categorias }
             };
             var dialogo = await DialogService.OpenAsync<CreateProducto>("Registrar producto nuevo", parameteres);
+        }
+
+        private async Task AbrirDialogCategoriaAsync()
+        {
+
+            var dialogo = await DialogService.OpenAsync<CreateProducto>("Registrar categoría");
+
         }
 
         private async Task AbrirDialogoStockAsync(ProductoConStock producto)
@@ -85,7 +92,7 @@ namespace AppBlazor.Components.Pages
             catch (Exception ex)
             {
                 Console.WriteLine($"Excepción al cargar productos: {ex.Message}");
-                productos = new List<ProductoConStock>();
+                productos = new List<Producto>();
             }
         }
 
@@ -123,7 +130,7 @@ namespace AppBlazor.Components.Pages
             }
         }
 
-        private async Task EliminarProducto(Guid id)
+        private async Task EliminarProducto(int id)
         {
             try
             {
@@ -140,17 +147,16 @@ namespace AppBlazor.Components.Pages
             }
         }
 
-        private void EditarCategoria(Guid id)
+        private void EditarCategoria(int id)
         {
             Console.WriteLine($"Editar categoría: {id}");
         }
 
 
 
-        private void EditarProveedor(Guid id)
+        private void EditarProveedor(int id)
         {
             Console.WriteLine($"Editar proveedor: {id}");
         }
-
     }
 }

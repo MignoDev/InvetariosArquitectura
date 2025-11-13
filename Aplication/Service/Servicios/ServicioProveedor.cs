@@ -55,7 +55,7 @@ namespace ProyectoInventario.Application.Service.Servicios
             // Crear proveedor
             var proveedor = new Proveedor
             {
-                Id = Guid.NewGuid(),
+                Id = int.NewGuid(),
                 Codigo = codigo,
                 Nombre = nombre,
                 Contacto = contacto,
@@ -73,7 +73,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Actualiza la información de un proveedor
         /// </summary>
-        public async Task<Proveedor> ActualizarProveedorAsync(Guid proveedorId, string nombre, 
+        public async Task<Proveedor> ActualizarProveedorAsync(int proveedorId, string nombre, 
             string contacto, string email, string telefono, string direccion)
         {
             // Obtener proveedor existente
@@ -110,7 +110,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Actualiza solo la información de contacto de un proveedor
         /// </summary>
-        public async Task<Proveedor> ActualizarContactoAsync(Guid proveedorId, string contacto, 
+        public async Task<Proveedor> ActualizarContactoAsync(int proveedorId, string contacto, 
             string email, string telefono)
         {
             var proveedor = await _repositorioProveedor.ObtenerPorIdAsync(proveedorId);
@@ -135,7 +135,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Actualiza solo la dirección de un proveedor
         /// </summary>
-        public async Task<Proveedor> ActualizarDireccionAsync(Guid proveedorId, string direccion)
+        public async Task<Proveedor> ActualizarDireccionAsync(int proveedorId, string direccion)
         {
             var proveedor = await _repositorioProveedor.ObtenerPorIdAsync(proveedorId);
             if (proveedor == null)
@@ -150,7 +150,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Obtiene un proveedor por su ID
         /// </summary>
-        public async Task<Proveedor> ObtenerProveedorAsync(Guid proveedorId)
+        public async Task<Proveedor> ObtenerProveedorAsync(int proveedorId)
         {
             return await _repositorioProveedor.ObtenerPorIdAsync(proveedorId);
         }
@@ -206,7 +206,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Activa un proveedor
         /// </summary>
-        public async Task<Proveedor> ActivarProveedorAsync(Guid proveedorId)
+        public async Task<Proveedor> ActivarProveedorAsync(int proveedorId)
         {
             var proveedor = await _repositorioProveedor.ObtenerPorIdAsync(proveedorId);
             if (proveedor == null)
@@ -221,7 +221,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Desactiva un proveedor
         /// </summary>
-        public async Task<Proveedor> DesactivarProveedorAsync(Guid proveedorId)
+        public async Task<Proveedor> DesactivarProveedorAsync(int proveedorId)
         {
             var proveedor = await _repositorioProveedor.ObtenerPorIdAsync(proveedorId);
             if (proveedor == null)
@@ -236,7 +236,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Elimina un proveedor
         /// </summary>
-        public async Task EliminarProveedorAsync(Guid proveedorId)
+        public async Task EliminarProveedorAsync(int proveedorId)
         {
             var proveedor = await _repositorioProveedor.ObtenerPorIdAsync(proveedorId);
             if (proveedor == null)
@@ -257,7 +257,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Obtiene estadísticas de un proveedor
         /// </summary>
-        public async Task<object> ObtenerEstadisticasProveedorAsync(Guid proveedorId)
+        public async Task<object> ObtenerEstadisticasProveedorAsync(int proveedorId)
         {
             var proveedor = await _repositorioProveedor.ObtenerPorIdAsync(proveedorId);
             if (proveedor == null)
@@ -288,7 +288,7 @@ namespace ProyectoInventario.Application.Service.Servicios
         /// <summary>
         /// Valida la información de contacto de un proveedor
         /// </summary>
-        public async Task<object> ValidarInformacionContactoAsync(Guid proveedorId)
+        public async Task<object> ValidarInformacionContactoAsync(int proveedorId)
         {
             var proveedor = await _repositorioProveedor.ObtenerPorIdAsync(proveedorId);
             if (proveedor == null)
