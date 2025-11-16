@@ -191,13 +191,10 @@ namespace Api.Controllers
                         {
                             if (await reader.ReadAsync())
                             {
-                                var producto = new Producto()
-                                {
-                                    IdProducto = reader.GetInt32("IdProducto")
-                                };
+                                
 
                                 return CreatedAtAction(nameof(ObtenerProducto),
-                                    new { success = true, data = producto, message = "Producto creado correctamente" });
+                                    new { success = true, data = true, message = "Producto creado correctamente" });
                             }
                         }
                     }

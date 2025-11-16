@@ -75,7 +75,7 @@ GO
 
 CREATE OR ALTER PROCEDURE sp_Productos_Insert
     @Nombre NVARCHAR(150),
-    @Descripcion NVARCHAR(300),
+    @Descripcion NVARCHAR(300) = NULL,
     @PrecioCompra DECIMAL(10,2),
     @PrecioVenta DECIMAL(10,2),
     @StockActual INT,
